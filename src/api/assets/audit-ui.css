@@ -40,10 +40,10 @@ h2 {
 .topbar-inner,
 .hero-inner,
 .footer-inner {
-  width: min(100% - 48px, var(--audit-max-width));
-  max-width: none;
+  width: 100%;
+  max-width: var(--audit-max-width);
   margin-inline: auto;
-  padding-inline: 0;
+  padding-inline: 24px;
 }
 
 .topbar {
@@ -586,7 +586,8 @@ textarea:focus {
   .topbar-inner,
   .hero-inner,
   .footer-inner {
-    width: min(100% - 28px, var(--audit-max-width));
+    width: 100%;
+    padding-inline: 14px;
   }
 
   .page-content {
