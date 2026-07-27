@@ -8,6 +8,11 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && mkdir -p dist/api/assets && cp src/api/assets/*.svg src/api/assets/*.css dist/api/assets/",
+    "dev": "npm run dev:api",
+    "format": "prettier --write package.json Taskfile.yml",
+    "format:check": "prettier --check package.json Taskfile.yml",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "lint:design": "if [ -f DESIGN.md ]; then npx --yes @google/design.md lint DESIGN.md; fi",
     "test": "vitest run",
     "test:ts119602-coverage": "vitest run test/ts119602ImplementedCoverage.test.ts test/ts119602Coverage.test.ts",
     "test:ts119612-coverage": "vitest run test/ts119612ImplementedCoverage.test.ts test/ts119612Coverage.test.ts",
@@ -34,6 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "prettier": "^3.6.2",
     "tsx": "^4.23.1",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

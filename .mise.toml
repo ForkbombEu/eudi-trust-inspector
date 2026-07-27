@@ -1,6 +1,7 @@
 [tools]
 node = "24.13.0"
 npm = "11.6.2"
+task = "latest"
 
 [bootstrap.packages]
 "apt:xmlsec1" = "latest"

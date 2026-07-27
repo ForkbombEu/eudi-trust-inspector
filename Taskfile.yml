@@ -1,0 +1,58 @@
+version: "3"
+
+tasks:
+  install:
+    desc: Install the locked Node.js dependencies.
+    cmds:
+      - npm ci
+
+  format:
+    desc: Format the package and task configuration files.
+    cmds:
+      - npm run format
+
+  format:check:
+    desc: Verify formatting without changing files.
+    cmds:
+      - npm run format:check
+
+  dev:
+    desc: Run the API from TypeScript source.
+    cmds:
+      - npm run dev
+
+  build:
+    desc: Compile the TypeScript application into dist/.
+    cmds:
+      - npm run build
+
+  test:
+    desc: Run the deterministic test suite.
+    cmds:
+      - npm run test
+
+  test:ts119602-coverage:
+    desc: Run the focused ETSI TS 119 602 coverage tests.
+    cmds:
+      - npm run test:ts119602-coverage
+
+  test:ts119612-coverage:
+    desc: Run the focused ETSI TS 119 612 coverage tests.
+    cmds:
+      - npm run test:ts119612-coverage
+
+  lint:
+    desc: Run TypeScript and optional design checks.
+    cmds:
+      - npm run lint
+      - npm run lint:design
+
+  lint:design:
+    desc: Lint DESIGN.md when the file is present.
+    cmds:
+      - npm run lint:design
+
+  api:
+    desc: Run the compiled API server.
+    cmds:
+      - npm run api
