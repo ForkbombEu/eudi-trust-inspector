@@ -11,9 +11,27 @@ export function renderAuditUiHtml(): string {
     <link rel="stylesheet" href="/assets/audit-ui.css" />
   </head>
   <body>
-    <header class="topbar"><div class="topbar-inner"><div class="brand-lockup"><a class="brand-logo-link" href="/" aria-label="EUDI Trust Inspector home"><img class="brand-logo" src="/assets/credimi_logo.svg" alt="Credimi" /></a><a class="brand-title" href="/">EUDI Trust Inspector</a></div><nav><a href="/">Home</a><a href="/docs">API docs</a><a href="/openapi.yaml">OpenAPI</a><a href="https://github.com/ForkbombEu/eudi-trust-inspector" target="_blank" rel="noreferrer">Repository</a></nav></div></header>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand-lockup" href="/">
+          <img class="brand-logo" src="/assets/credimi_logo.svg" alt="Credimi" />
+          <span class="brand-name">EUDI Trust Inspector</span>
+        </a>
+        <nav class="topbar-actions" aria-label="Primary navigation">
+          <a class="btn btn-outline btn-md" href="/docs">API docs</a>
+          <a class="btn btn-outline btn-md" href="/openapi.yaml">OpenAPI</a>
+          <a class="btn btn-outline btn-md" href="https://github.com/ForkbombEu/eudi-trust-inspector" target="_blank" rel="noreferrer">Repository</a>
+        </nav>
+      </div>
+    </header>
     <main>
-      <section class="hero"><div class="container"><p class="eyebrow">Evidence-oriented assessment</p><h1>Audit a trusted list</h1><p>Assess a LoTL from a URL or local file, or inspect one TrustedList XML or JSON document. Nothing is sent until you run an audit.</p></div></section>
+      <section class="hero-band">
+        <div class="hero-inner">
+          <p class="eyebrow">Evidence-oriented assessment</p>
+          <h1>Audit a trusted list</h1>
+          <p>Assess a LoTL from a URL or local file, or inspect one TrustedList XML or JSON document. Nothing is sent until you run an audit.</p>
+        </div>
+      </section>
       <section class="container page-content">
         <p class="disclaimer">This tool reports implemented technical evidence. It is not a legal conformance decision or a production trust decision.</p>
         <div class="tabs" role="tablist"><button class="tab-btn active" type="button" data-panel="lotl">LoTL</button><button class="tab-btn" type="button" data-panel="artifact">TrustedList XML/JSON</button></div>
@@ -26,15 +44,31 @@ export function renderAuditUiHtml(): string {
         <section id="result" class="result" hidden aria-live="polite"><div class="section-header"><h2>Assessment result</h2><button id="copy-json" class="btn btn-outline" type="button">Copy JSON</button></div><div id="summary" class="summary-grid"></div><div class="tabs result-tabs"><button class="tab-btn active" type="button" data-result-panel="findings">Findings</button><button class="tab-btn" type="button" data-result-panel="json">JSON</button><button class="tab-btn" type="button" data-result-panel="markdown">Markdown</button></div><div id="findings-result" class="result-panel active"></div><pre id="json-result" class="result-panel"></pre><pre id="markdown-result" class="result-panel"></pre></section>
       </section>
     </main>
-    <footer class="footer"><div class="footer-inner"><div class="footer-content"><div class="footer-brand"><img class="footer-logo" src="/assets/credimi_logo_negative.svg" alt="Credimi" /><p>Evidence-oriented audit tool for EUDI and WE BUILD trusted lists.</p></div><nav class="footer-links" aria-label="Project links"><a class="footer-link" href="https://forkbomb.eu" target="_blank" rel="noreferrer">Developed by Forkbomb BV</a><a class="footer-link fork-link" href="https://github.com/ForkbombEu/eudi-trust-inspector" target="_blank" rel="noreferrer">Repository</a></nav></div></div></footer>
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <img class="footer-logo" src="/assets/credimi_logo_negative.svg" alt="Credimi" />
+            <p>Evidence-oriented audit tool for EUDI and WE BUILD trusted lists.</p>
+          </div>
+          <nav class="footer-links" aria-label="Project links">
+            <a class="footer-link" href="https://forkbomb.eu" target="_blank" rel="noreferrer">Developed by Forkbomb BV</a>
+            <a class="footer-link fork-link" href="https://github.com/ForkbombEu/eudi-trust-inspector" target="_blank" rel="noreferrer">Repository</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+    <script>console.log("%cEUDI Trust Inspector%c Credimi audit UI", "background:#312060;color:#fff;padding:5px 9px;font-weight:800;border-radius:6px 0 0 6px;", "background:#f1e9f7;color:#22172f;padding:5px 9px;font-weight:700;border-radius:0 6px 6px 0;");</script>
     <script src="/assets/audit-ui.js" defer></script>
   </body>
 </html>`;
 }
 
-export const auditUiCss = `
+export const auditUiCss =
+  `
 :root{--brand-primary:oklch(.2955 .1659 277.31);--brand-primary-700:oklch(.36 .18 277.31);--brand-secondary:oklch(.9464 .0284 294.59);--bg:#fff;--bg-muted:oklch(.9811 .0064 308.39);--fg:oklch(.129 .042 264.695);--fg-muted:oklch(.52 .02 286.16);--border:oklch(.929 .013 255.508);--success:oklch(.45 .16 150);--success-bg:oklch(.95 .04 150);--warning:oklch(.52 .15 85);--warning-bg:oklch(.96 .06 85);--destructive:oklch(.48 .2 25);--destructive-bg:oklch(.96 .03 25);--info:oklch(.4 .15 260);--info-bg:oklch(.94 .04 260);--radius:10px;--max:1120px}*{box-sizing:border-box}body{min-height:100vh;margin:0;display:flex;flex-direction:column;color:var(--fg);background:var(--brand-secondary);font:14px/1.55 Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{flex:1}.container{max-width:var(--max);margin:auto;padding:0 24px}.topbar{height:56px;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2}.topbar-inner{height:100%;max-width:var(--max);margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:800;color:var(--fg);text-decoration:none}.topbar nav{display:flex;gap:16px}.topbar a{color:var(--brand-primary);text-decoration:none}.hero{padding:64px 0;background:var(--brand-secondary);background-image:linear-gradient(135deg,transparent 49.5%,rgba(0,0,0,.035) 50%,transparent 50.5%);background-size:30px 30px}.eyebrow{margin:0 0 8px;text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:600;color:var(--brand-primary)}h1{font-size:42px;line-height:1.1;letter-spacing:-.02em;margin:0 0 14px}h2{font-size:21px;margin:0 0 6px}p{margin:0}.hero p:not(.eyebrow){max-width:650px;color:var(--fg-muted);font-size:16px}.page-content{padding-top:32px;padding-bottom:64px}.disclaimer{background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--warning);padding:16px;border-radius:6px;color:var(--fg-muted);margin-bottom:24px}.tabs{display:flex;border-bottom:1px solid var(--border);gap:0;margin-bottom:20px}.tab-btn{border:0;border-bottom:2px solid transparent;background:none;padding:10px 16px;color:var(--fg-muted);font:inherit;font-weight:600;cursor:pointer}.tab-btn.active{color:var(--brand-primary);border-bottom-color:var(--brand-primary)}.panel,.result-panel{display:none}.panel.active,.result-panel.active{display:block}.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:24px}.muted,.file-name{color:var(--fg-muted);font-size:13px;margin-bottom:16px}label{display:block;font-weight:600;margin:16px 0 6px}input[type=url],input[type=number],textarea{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg);padding:10px 12px;font:inherit}textarea{resize:vertical;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px}input:focus,textarea:focus{outline:0;border-color:var(--brand-primary);box-shadow:0 0 0 3px oklch(.2955 .1659 277.31/.18)}.or{text-align:center;color:var(--fg-muted);font-size:12px;margin:12px}.file-picker{border:1px dashed var(--brand-primary);border-radius:10px;padding:12px;cursor:pointer;color:var(--brand-primary);text-align:center}.file-picker input{position:absolute;width:1px;height:1px;opacity:0}.advanced{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);margin-top:16px;padding:0 18px}.advanced summary{padding:14px 0;cursor:pointer;font-weight:700}.advanced-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 0 18px}.advanced-grid label{margin:0}.advanced-grid label span{display:block;margin-bottom:6px}.check{display:flex!important;align-items:center;gap:8px;padding-top:24px}.check input{width:16px;height:16px}.actions{display:flex;align-items:center;gap:12px;margin-top:20px}.btn{border:0;border-radius:10px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer}.btn-primary{background:var(--brand-primary);color:#fff}.btn-primary:hover{background:var(--brand-primary-700)}.btn:disabled{opacity:.6;cursor:wait}.btn-outline{background:var(--bg);color:var(--fg);border:1px solid var(--border)}.result{margin-top:42px}.section-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:18px}.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}.summary-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px}.summary-value{font-size:26px;font-weight:800;color:var(--brand-primary)}.summary-label{font-size:12px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.06em}.result-group{background:var(--bg);border:1px solid var(--border);border-radius:10px;margin:10px 0;overflow:hidden}.result-group summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;cursor:pointer;list-style:none}.result-group summary::-webkit-details-marker{display:none}.result-group summary::before{content:"›";color:var(--brand-primary);font-size:18px;line-height:1;transform:rotate(0deg)}.result-group[open] summary::before{transform:rotate(90deg)}.result-group summary strong{flex:1;overflow-wrap:anywhere}.count-chip{background:var(--brand-secondary);color:var(--brand-primary);border-radius:999px;min-width:24px;padding:2px 8px;text-align:center;font-size:12px}.group-detail{padding:0 14px;color:var(--fg-muted);font-size:13px;overflow-wrap:anywhere}.group-detail:last-of-type{padding-bottom:12px}.group-detail+.group-detail{padding-top:4px}.group-body{padding:0 14px 10px}.finding{background:var(--bg-muted);border:1px solid var(--border);border-radius:6px;padding:14px;margin:8px 0}.finding-head{display:flex;justify-content:space-between;gap:12px;align-items:start}.finding-id{font:12px "JetBrains Mono",ui-monospace,monospace;color:var(--fg-muted)}.finding p{margin-top:6px}.status{font-size:11px;font-weight:700;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}.status-pass{background:var(--success-bg);color:var(--success)}.status-fail{background:var(--destructive-bg);color:var(--destructive)}.status-warn,.status-inconclusive{background:var(--warning-bg);color:var(--warning)}.status-not_applicable,.status-not_checked,.status-unsupported{background:var(--info-bg);color:var(--info)}pre{margin:0;background:var(--bg-muted);border:1px solid var(--border);border-radius:6px;padding:16px;overflow:auto;font:12px/1.5 "JetBrains Mono",ui-monospace,monospace;max-height:680px;white-space:pre-wrap}.footer{background:var(--brand-primary);color:#fff;padding:32px 0}.footer-inner{max-width:var(--max);margin:auto;padding:0 24px}.footer-content{display:flex;align-items:center;justify-content:space-between;gap:32px}.footer-brand{display:inline-flex;align-items:center;gap:14px;min-width:0}.footer-logo{display:block;width:60px;height:60px;object-fit:contain;flex:0 0 auto}.footer-brand p{max-width:420px;color:rgba(255,255,255,.76);font-size:13px;line-height:1.5}.footer-links{display:inline-flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}.footer-link{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border:1px solid rgba(255,255,255,.22);border-radius:6px;color:#fff;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap}.footer-link:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.44)}.fork-link{background:#fff;color:var(--brand-primary);border-color:#fff}.fork-link:hover{background:var(--brand-secondary);border-color:var(--brand-secondary)}@media(max-width:700px){.container,.topbar-inner,.footer-inner{padding-left:16px;padding-right:16px}h1{font-size:32px}.hero{padding:42px 0}.advanced-grid,.summary-grid{grid-template-columns:1fr}.lotl-only{display:none}.topbar nav{gap:10px;font-size:12px}.footer-content{flex-direction:column;align-items:stretch}.footer-links{justify-content:flex-start}}
-` + "\n.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}.file-picker{display:flex;width:fit-content;align-items:center;margin:16px auto 6px}.brand-lockup{display:flex;align-items:center;gap:8px;min-width:0}.brand-logo-link{display:flex;align-items:center}.brand-logo{box-sizing:border-box;width:42px;height:42px;padding:4px;object-fit:contain;flex:0 0 auto}.brand-title{font-weight:800;color:var(--fg)!important;text-decoration:none;white-space:nowrap}.footer-logo{box-sizing:border-box;width:56px;height:56px;padding:6px;object-fit:contain}@media(max-width:700px){.brand-title{display:none}}";
+` +
+  "\n.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}.file-picker{display:flex;width:fit-content;align-items:center;margin:16px auto 6px}.brand-lockup{display:flex;align-items:center;gap:8px;min-width:0}.brand-logo-link{display:flex;align-items:center}.brand-logo{box-sizing:border-box;width:42px;height:42px;padding:4px;object-fit:contain;flex:0 0 auto}.brand-title{font-weight:800;color:var(--fg)!important;text-decoration:none;white-space:nowrap}.footer-logo{box-sizing:border-box;width:56px;height:56px;padding:6px;object-fit:contain}@media(max-width:700px){.brand-title{display:none}}";
 
 export const auditUiScript = `
 (() => {
@@ -70,15 +104,39 @@ export const auditUiScript = `
   $("copy-json").addEventListener("click", async () => { if (!latest) return; try { await navigator.clipboard.writeText(JSON.stringify(latest, null, 2)); $("copy-json").textContent = "Copied"; setTimeout(() => { $("copy-json").textContent = "Copy JSON"; }, 1400); } catch { $("copy-json").textContent = "Copy unavailable"; } });
 })();
 `
-  .replaceAll("Provide an artifact URL, choose a file, or paste XML or JSON.", "Provide a TrustedList URL, choose a file, or paste TrustedList XML or JSON.")
-  .replaceAll("The JSON tab contains the full single-artifact assessment.", "The JSON tab contains the full TrustedList assessment.")
-  .replaceAll("This artifact was not fetched.", "This TrustedList was not fetched.")
+  .replaceAll(
+    "Provide an artifact URL, choose a file, or paste XML or JSON.",
+    "Provide a TrustedList URL, choose a file, or paste TrustedList XML or JSON.",
+  )
+  .replaceAll(
+    "The JSON tab contains the full single-artifact assessment.",
+    "The JSON tab contains the full TrustedList assessment.",
+  )
+  .replaceAll(
+    "This artifact was not fetched.",
+    "This TrustedList was not fetched.",
+  )
   .replaceAll("Artifact retrieval", "TrustedList retrieval")
-  .replaceAll("whether a referenced artifact can be reached", "whether a referenced TrustedList can be reached")
-  .replaceAll("whether the artifact type is recognised", "whether the TrustedList type is recognised")
-  .replaceAll("whether the artifact can be retrieved", "whether the TrustedList can be retrieved")
-  .replaceAll("The source artifacts are not altered", "The source TrustedLists are not altered")
-  .replaceAll("this individual trusted-list artifact", "this individual TrustedList")
+  .replaceAll(
+    "whether a referenced artifact can be reached",
+    "whether a referenced TrustedList can be reached",
+  )
+  .replaceAll(
+    "whether the artifact type is recognised",
+    "whether the TrustedList type is recognised",
+  )
+  .replaceAll(
+    "whether the artifact can be retrieved",
+    "whether the TrustedList can be retrieved",
+  )
+  .replaceAll(
+    "The source artifacts are not altered",
+    "The source TrustedLists are not altered",
+  )
+  .replaceAll(
+    "this individual trusted-list artifact",
+    "this individual TrustedList",
+  )
   .replaceAll("Fetched artifact: ", "Fetched TrustedList: ")
   .replaceAll("Artifact: ", "TrustedList: ")
   .replaceAll("Single artifact: ", "TrustedList: ");

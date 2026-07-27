@@ -21,6 +21,8 @@ The API listens on `http://127.0.0.1:3000` by default. Use `npm run dev:api` for
 
 ## Quick GUI guide
 
+The homepage introduces the assessment in a compact hero followed by the audit form. Its header links to the API documentation, raw OpenAPI document, and project repository.
+
 ### LoTL
 
 Provide a LoTL URL or upload its JSON. The result groups findings by fetched TrustedList and separates pass, warning, failure, and not-final states.
@@ -31,19 +33,19 @@ Provide a TrustedList URL, upload XML/JSON/JWS, or paste content. The UI renders
 
 ## CLI Examples
 
-| Function | Example |
-| --- | --- |
-| Audit local LoTL | `node dist/cli.js --input ./list_of_trusted_lists.json --out-dir ./audit-output --concurrency 4 --timeout-ms 15000` |
-| Audit a URL | `node dist/cli.js --input https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json --out-dir ./audit-output` |
-| Use a named reference source | `node dist/cli.js --reference-source we-build-lotl-json --out-dir ./audit-output` |
+| Function                     | Example                                                                                                                             |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Audit local LoTL             | `node dist/cli.js --input ./list_of_trusted_lists.json --out-dir ./audit-output --concurrency 4 --timeout-ms 15000`                 |
+| Audit a URL                  | `node dist/cli.js --input https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json --out-dir ./audit-output` |
+| Use a named reference source | `node dist/cli.js --reference-source we-build-lotl-json --out-dir ./audit-output`                                                   |
 
 ## API Examples
 
-| Function | Example |
-| --- | --- |
-| Health | `curl http://127.0.0.1:3000/healthz` |
-| Audit a LoTL URL | `curl -X POST http://127.0.0.1:3000/api/v1/audit/url -H 'content-type: application/json' -d '{"url":"https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json"}'` |
-| Assess a TrustedList URL | `curl -X POST http://127.0.0.1:3000/api/v1/artifact/assess-url -H 'content-type: application/json' -d '{"url":"https://example.org/trusted-list.xml"}'` |
-| Parse a LoTL | `curl -X POST http://127.0.0.1:3000/api/v1/lotl/parse -H 'content-type: application/json' -d '{"lotl":{"LoTE":{"ListAndSchemeInformation":{"PointersToOtherLoTE":[]}}}}'` |
+| Function                 | Example                                                                                                                                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Health                   | `curl http://127.0.0.1:3000/healthz`                                                                                                                                                     |
+| Audit a LoTL URL         | `curl -X POST http://127.0.0.1:3000/api/v1/audit/url -H 'content-type: application/json' -d '{"url":"https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json"}'` |
+| Assess a TrustedList URL | `curl -X POST http://127.0.0.1:3000/api/v1/artifact/assess-url -H 'content-type: application/json' -d '{"url":"https://example.org/trusted-list.xml"}'`                                  |
+| Parse a LoTL             | `curl -X POST http://127.0.0.1:3000/api/v1/lotl/parse -H 'content-type: application/json' -d '{"lotl":{"LoTE":{"ListAndSchemeInformation":{"PointersToOtherLoTE":[]}}}}'`                |
 
 Interactive documentation is at `/docs`; `/openapi.yaml` is the authoritative machine-readable document and `/openapi.json` is derived from it.

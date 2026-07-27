@@ -1,16 +1,25 @@
 import type { FastifyInstance } from "fastify";
 import { readFile } from "node:fs/promises";
-import { assessArtifactContent, assessArtifactUrl, runAuditFromJson, runAuditFromUrl } from "../audit.js";
+import {
+  assessArtifactContent,
+  assessArtifactUrl,
+  runAuditFromJson,
+  runAuditFromUrl,
+} from "../audit.js";
 import { assessCertificateChain } from "../eudi/certificateChain.js";
 import type { EudiTrustRole } from "../eudi/roles.js";
 import { isUrl } from "../input.js";
 import { parseLotlJson } from "../lotl.js";
 import { renderMarkdownReport } from "../report/markdownReport.js";
-import type { AuditReport, TrustedListAuditResult, Ts119602ContextOptions } from "../types.js";
+import type {
+  AuditReport,
+  TrustedListAuditResult,
+  Ts119602ContextOptions,
+} from "../types.js";
 import type { ApiRuntimeConfig } from "./config.js";
 import { requestBaseUrl } from "./config.js";
 import { renderDocsHtml } from "./docs.js";
-import { auditUiCss, auditUiScript, renderAuditUiHtml } from "./auditUi.js";
+import { auditUiScript, renderAuditUiHtml } from "./auditUi.js";
 import { loadOpenApiJson, loadOpenApiYaml } from "./openapi.js";
 import {
   artifactAssessUrlSchema,
@@ -82,7 +91,10 @@ interface MarkdownReportBody {
   report: AuditReport;
 }
 
-export async function registerRoutes(app: FastifyInstance, options: RouteOptions): Promise<void> {
+export async function registerRoutes(
+  app: FastifyInstance,
+  options: RouteOptions,
+): Promise<void> {
   app.get("/", async (_request, reply) => {
     reply.type("text/html; charset=utf-8");
     return renderAuditUiHtml();
@@ -90,7 +102,7 @@ export async function registerRoutes(app: FastifyInstance, options: RouteOptions
 
   app.get("/assets/audit-ui.css", async (_request, reply) => {
     reply.type("text/css; charset=utf-8");
-    return auditUiCss;
+    return readFile(new URL("./assets/audit-ui.css", import.meta.url), "utf8");
   });
 
   app.get("/assets/style.css", async (_request, reply) => {
@@ -105,17 +117,26 @@ export async function registerRoutes(app: FastifyInstance, options: RouteOptions
 
   app.get("/assets/credimi_logo.svg", async (_request, reply) => {
     reply.type("image/svg+xml");
-    return readFile(new URL("./assets/credimi_logo.svg", import.meta.url), "utf8");
+    return readFile(
+      new URL("./assets/credimi_logo.svg", import.meta.url),
+      "utf8",
+    );
   });
 
   app.get("/assets/credimi_logo_negative.svg", async (_request, reply) => {
     reply.type("image/svg+xml");
-    return readFile(new URL("./assets/credimi_logo_negative.svg", import.meta.url), "utf8");
+    return readFile(
+      new URL("./assets/credimi_logo_negative.svg", import.meta.url),
+      "utf8",
+    );
   });
 
   app.get("/favicon.svg", async (_request, reply) => {
     reply.type("image/svg+xml");
-    return readFile(new URL("./assets/credimi_logo.svg", import.meta.url), "utf8");
+    return readFile(
+      new URL("./assets/credimi_logo.svg", import.meta.url),
+      "utf8",
+    );
   });
 
   app.get("/healthz", async () => ({
@@ -129,107 +150,192 @@ export async function registerRoutes(app: FastifyInstance, options: RouteOptions
     return loadOpenApiYaml(requestBaseUrl(request.headers, options.config));
   });
 
-  app.get("/openapi.json", async (request) => loadOpenApiJson(requestBaseUrl(request.headers, options.config)));
+  app.get("/openapi.json", async (request) =>
+    loadOpenApiJson(requestBaseUrl(request.headers, options.config)),
+  );
 
   app.get("/docs", async (_request, reply) => {
     reply.type("text/html; charset=utf-8");
     return renderDocsHtml();
   });
 
-  app.post<{ Body: AuditUrlBody }>("/api/v1/audit/url", { schema: auditUrlSchema }, async (request) => {
-    if (!isUrl(request.body.url)) {
-      throw request.server.httpErrors.badRequest("Invalid URL.", { code: "invalid_url" });
-    }
-    const result = await runAuditFromUrl(request.body.url, { ...defaultAuditOptions(request.body.options, options.config.auditDefaults), context: request.body.context }, options.version);
-    return {
-      report: result.json,
-      markdown: result.markdown,
-    };
-  });
+  app.post<{ Body: AuditUrlBody }>(
+    "/api/v1/audit/url",
+    { schema: auditUrlSchema },
+    async (request) => {
+      if (!isUrl(request.body.url)) {
+        throw request.server.httpErrors.badRequest("Invalid URL.", {
+          code: "invalid_url",
+        });
+      }
+      const result = await runAuditFromUrl(
+        request.body.url,
+        {
+          ...defaultAuditOptions(
+            request.body.options,
+            options.config.auditDefaults,
+          ),
+          context: request.body.context,
+        },
+        options.version,
+      );
+      return {
+        report: result.json,
+        markdown: result.markdown,
+      };
+    },
+  );
 
-  app.post<{ Body: AuditJsonBody }>("/api/v1/audit/json", { schema: auditJsonSchema }, async (request) => {
-    const result = await runAuditFromJson(request.body.lotl, { ...defaultAuditOptions(request.body.options, options.config.auditDefaults), context: request.body.context }, options.version);
-    return {
-      report: result.json,
-      markdown: result.markdown,
-    };
-  });
+  app.post<{ Body: AuditJsonBody }>(
+    "/api/v1/audit/json",
+    { schema: auditJsonSchema },
+    async (request) => {
+      const result = await runAuditFromJson(
+        request.body.lotl,
+        {
+          ...defaultAuditOptions(
+            request.body.options,
+            options.config.auditDefaults,
+          ),
+          context: request.body.context,
+        },
+        options.version,
+      );
+      return {
+        report: result.json,
+        markdown: result.markdown,
+      };
+    },
+  );
 
-  app.post<{ Body: AuditLotlBody }>("/api/audit/lotl", { schema: auditLotlSchema }, async (request) => {
-    const result = await auditLotl(request.body, options, request.server);
-    return { report: result.json, markdown: result.markdown };
-  });
+  app.post<{ Body: AuditLotlBody }>(
+    "/api/audit/lotl",
+    { schema: auditLotlSchema },
+    async (request) => {
+      const result = await auditLotl(request.body, options, request.server);
+      return { report: result.json, markdown: result.markdown };
+    },
+  );
 
-  app.post<{ Body: LotlParseBody }>("/api/v1/lotl/parse", { schema: lotlParseSchema }, async (request) => {
-    const parsed = parseLotlJson(lotlText(request.body.lotl));
-    return {
-      summary: parsed.summary,
-      pointers: parsed.pointers.map((pointer) => ({
-        index: pointer.index,
-        location: pointer.location,
-        declared: pointer.declared,
-      })),
-    };
-  });
+  app.post<{ Body: LotlParseBody }>(
+    "/api/v1/lotl/parse",
+    { schema: lotlParseSchema },
+    async (request) => {
+      const parsed = parseLotlJson(lotlText(request.body.lotl));
+      return {
+        summary: parsed.summary,
+        pointers: parsed.pointers.map((pointer) => ({
+          index: pointer.index,
+          location: pointer.location,
+          declared: pointer.declared,
+        })),
+      };
+    },
+  );
 
-  app.post<{ Body: ArtifactAssessUrlBody }>("/api/v1/artifact/assess-url", { schema: artifactAssessUrlSchema }, async (request) => {
-    if (!isUrl(request.body.url)) {
-      throw request.server.httpErrors.badRequest("Invalid URL.", { code: "invalid_url" });
-    }
-    const artifactOptions = defaultArtifactOptions(request.body.options, options.config.auditDefaults);
-    const result = await assessArtifactUrl({
-      url: request.body.url,
-      declared: request.body.declared,
-      timeoutMs: artifactOptions.timeoutMs,
-      strict: artifactOptions.strict,
-      includeJsonLoteChecks: artifactOptions.includeJsonLoteChecks,
-      context: request.body.context,
-    });
-    return { result };
-  });
+  app.post<{ Body: ArtifactAssessUrlBody }>(
+    "/api/v1/artifact/assess-url",
+    { schema: artifactAssessUrlSchema },
+    async (request) => {
+      if (!isUrl(request.body.url)) {
+        throw request.server.httpErrors.badRequest("Invalid URL.", {
+          code: "invalid_url",
+        });
+      }
+      const artifactOptions = defaultArtifactOptions(
+        request.body.options,
+        options.config.auditDefaults,
+      );
+      const result = await assessArtifactUrl({
+        url: request.body.url,
+        declared: request.body.declared,
+        timeoutMs: artifactOptions.timeoutMs,
+        strict: artifactOptions.strict,
+        includeJsonLoteChecks: artifactOptions.includeJsonLoteChecks,
+        context: request.body.context,
+      });
+      return { result };
+    },
+  );
 
-  app.post<{ Body: ArtifactAssessContentBody }>("/api/audit/artifact", { schema: artifactAssessContentSchema }, async (request) => {
-    const artifactOptions = defaultArtifactOptions(request.body.options, options.config.auditDefaults);
-    const result = await assessArtifactContent({
-      content: request.body.content,
-      source: request.body.source,
-      contentType: request.body.contentType,
-      declared: request.body.declared,
-      ...artifactOptions,
-      context: request.body.context,
-    });
-    return { result };
-  });
+  app.post<{ Body: ArtifactAssessContentBody }>(
+    "/api/audit/artifact",
+    { schema: artifactAssessContentSchema },
+    async (request) => {
+      const artifactOptions = defaultArtifactOptions(
+        request.body.options,
+        options.config.auditDefaults,
+      );
+      const result = await assessArtifactContent({
+        content: request.body.content,
+        source: request.body.source,
+        contentType: request.body.contentType,
+        declared: request.body.declared,
+        ...artifactOptions,
+        context: request.body.context,
+      });
+      return { result };
+    },
+  );
 
-  app.post<{ Body: CertificateChainBody }>("/api/audit/certificate-chain", { schema: certificateChainSchema }, async (request) => ({
-    assessment: assessCertificateChain(request.body),
-  }));
+  app.post<{ Body: CertificateChainBody }>(
+    "/api/audit/certificate-chain",
+    { schema: certificateChainSchema },
+    async (request) => ({
+      assessment: assessCertificateChain(request.body),
+    }),
+  );
 
-  app.post<{ Body: AuditLotlBody }>("/api/audit/fixture-readiness", { schema: auditLotlSchema }, async (request) => {
-    const result = await auditLotl(request.body, options, request.server);
-    return {
-      fixtureReadiness: result.json.fixtureReadiness,
-      fcafTrustedAuthorities: result.json.fcafTrustedAuthorities,
-      negativeFixtureDescriptors: result.json.negativeFixtureDescriptors,
-    };
-  });
+  app.post<{ Body: AuditLotlBody }>(
+    "/api/audit/fixture-readiness",
+    { schema: auditLotlSchema },
+    async (request) => {
+      const result = await auditLotl(request.body, options, request.server);
+      return {
+        fixtureReadiness: result.json.fixtureReadiness,
+        fcafTrustedAuthorities: result.json.fcafTrustedAuthorities,
+        negativeFixtureDescriptors: result.json.negativeFixtureDescriptors,
+      };
+    },
+  );
 
-  app.post<{ Body: MarkdownReportBody }>("/api/v1/report/markdown", { schema: markdownReportSchema }, async (request) => ({
-    markdown: renderMarkdownReport(request.body.report),
-  }));
+  app.post<{ Body: MarkdownReportBody }>(
+    "/api/v1/report/markdown",
+    { schema: markdownReportSchema },
+    async (request) => ({
+      markdown: renderMarkdownReport(request.body.report),
+    }),
+  );
 
-  app.post<{ Body: MarkdownReportBody }>("/api/reports/markdown", { schema: markdownReportSchema }, async (request) => ({
-    markdown: renderMarkdownReport(request.body.report),
-  }));
+  app.post<{ Body: MarkdownReportBody }>(
+    "/api/reports/markdown",
+    { schema: markdownReportSchema },
+    async (request) => ({
+      markdown: renderMarkdownReport(request.body.report),
+    }),
+  );
 }
 
-async function auditLotl(body: AuditLotlBody, routeOptions: RouteOptions, app: FastifyInstance) {
-  const auditOptions = { ...defaultAuditOptions(body.options, routeOptions.config.auditDefaults), rpacChain: body.rpacChain, context: body.context };
+async function auditLotl(
+  body: AuditLotlBody,
+  routeOptions: RouteOptions,
+  app: FastifyInstance,
+) {
+  const auditOptions = {
+    ...defaultAuditOptions(body.options, routeOptions.config.auditDefaults),
+    rpacChain: body.rpacChain,
+    context: body.context,
+  };
   if (body.url !== undefined) {
-    if (!isUrl(body.url)) throw app.httpErrors.badRequest("Invalid URL.", { code: "invalid_url" });
+    if (!isUrl(body.url))
+      throw app.httpErrors.badRequest("Invalid URL.", { code: "invalid_url" });
     return runAuditFromUrl(body.url, auditOptions, routeOptions.version);
   }
-  return runAuditFromJson(body.content ?? body.lotl, auditOptions, routeOptions.version);
+  return runAuditFromJson(
+    body.content ?? body.lotl,
+    auditOptions,
+    routeOptions.version,
+  );
 }
 
 function lotlText(value: unknown): string {

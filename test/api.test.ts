@@ -15,14 +15,24 @@ describe("API server", () => {
   });
 
   it("keeps runtime Credimi assets byte-identical to the HITL inputs", async () => {
-    await expect(readFile(new URL("../src/api/assets/style.css", import.meta.url))).resolves.toEqual(
+    await expect(
+      readFile(new URL("../src/api/assets/style.css", import.meta.url)),
+    ).resolves.toEqual(
       await readFile(new URL("../HITL/style.css", import.meta.url)),
     );
-    await expect(readFile(new URL("../src/api/assets/credimi_logo.svg", import.meta.url))).resolves.toEqual(
+    await expect(
+      readFile(new URL("../src/api/assets/credimi_logo.svg", import.meta.url)),
+    ).resolves.toEqual(
       await readFile(new URL("../HITL/credimi_logo.svg", import.meta.url)),
     );
-    await expect(readFile(new URL("../src/api/assets/credimi_logo_negative.svg", import.meta.url))).resolves.toEqual(
-      await readFile(new URL("../HITL/credimi_logo_negative.svg", import.meta.url)),
+    await expect(
+      readFile(
+        new URL("../src/api/assets/credimi_logo_negative.svg", import.meta.url),
+      ),
+    ).resolves.toEqual(
+      await readFile(
+        new URL("../HITL/credimi_logo_negative.svg", import.meta.url),
+      ),
     );
   });
 
@@ -48,13 +58,18 @@ describe("API server", () => {
     });
     expect(response.statusCode).toBe(200);
     const body = response.json();
-    expect(body.summary).toMatchObject({ pointerCount: 3, uniqueLocationCount: 3 });
-    expect(body.pointers).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        index: 1,
-        location: "https://example.test/tl.xml",
-      }),
-    ]));
+    expect(body.summary).toMatchObject({
+      pointerCount: 3,
+      uniqueLocationCount: 3,
+    });
+    expect(body.pointers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          index: 1,
+          location: "https://example.test/tl.xml",
+        }),
+      ]),
+    );
     await app.close();
   });
 
@@ -66,10 +81,16 @@ describe("API server", () => {
     globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
       if (url.endsWith("/tl.xml")) {
-        return new Response(xml, { status: 200, headers: { "content-type": "application/xml" } });
+        return new Response(xml, {
+          status: 200,
+          headers: { "content-type": "application/xml" },
+        });
       }
       if (url.endsWith("/lote.json")) {
-        return new Response(json, { status: 200, headers: { "content-type": "application/json" } });
+        return new Response(json, {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
       }
       return new Response("missing", { status: 404, statusText: "Not Found" });
     }) as typeof fetch;
@@ -92,8 +113,12 @@ describe("API server", () => {
     const body = response.json();
     expect(body.report.summary.totalPointers).toBe(3);
     expect(body.report.summary.jsonArtifacts).toBe(1);
-    expect(body.report.results[1].ts119612.conformanceLevel).toBe("not_applicable");
-    expect(body.report.results[1].ts119602.conformanceLevel).toBe("non_conformant");
+    expect(body.report.results[1].ts119612.conformanceLevel).toBe(
+      "not_applicable",
+    );
+    expect(body.report.results[1].ts119602.conformanceLevel).toBe(
+      "non_conformant",
+    );
     expect(body.report.results[1].ts119602Classification).toMatchObject({
       binding: "scheme_explicit_json",
       bindingStatus: "selected",
@@ -112,7 +137,13 @@ describe("API server", () => {
   it("assesses a single artifact URL", async () => {
     const app = await buildServer();
     const xml = await readFile("test/fixtures/tsl-valid-ish.xml", "utf8");
-    globalThis.fetch = vi.fn(async () => new Response(xml, { status: 200, headers: { "content-type": "application/xml" } })) as typeof fetch;
+    globalThis.fetch = vi.fn(
+      async () =>
+        new Response(xml, {
+          status: 200,
+          headers: { "content-type": "application/xml" },
+        }),
+    ) as typeof fetch;
     const response = await app.inject({
       method: "POST",
       url: "/api/v1/artifact/assess-url",
@@ -136,17 +167,19 @@ describe("API server", () => {
       location: "https://example.test/tl.xml",
       detected: { format: "xml" },
     });
-    expect(body.result.ts119612.checks).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        id: "schema.xsd",
-        status: "inconclusive",
-        evidence: expect.objectContaining({
-          selection: expect.objectContaining({
-            observedNamespace: "http://uri.etsi.org/19612/v2.4.1#",
+    expect(body.result.ts119612.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "schema.xsd",
+          status: "inconclusive",
+          evidence: expect.objectContaining({
+            selection: expect.objectContaining({
+              observedNamespace: "http://uri.etsi.org/19612/v2.4.1#",
+            }),
           }),
         }),
-      }),
-    ]));
+      ]),
+    );
     await app.close();
   });
 
@@ -169,12 +202,24 @@ describe("API server", () => {
     const artifactResponse = await app.inject({
       method: "POST",
       url: "/api/audit/artifact",
-      payload: { content: xml, source: "fixture.xml", contentType: "application/xml", options: { strict: false, includeJsonLoteChecks: true } },
+      payload: {
+        content: xml,
+        source: "fixture.xml",
+        contentType: "application/xml",
+        options: { strict: false, includeJsonLoteChecks: true },
+      },
     });
     expect(artifactResponse.statusCode).toBe(200);
-    expect(artifactResponse.json().result).toMatchObject({ source: "fixture.xml", fetch: { attempted: false }, detected: { format: "xml" } });
+    expect(artifactResponse.json().result).toMatchObject({
+      source: "fixture.xml",
+      fetch: { attempted: false },
+      detected: { format: "xml" },
+    });
 
-    const eudiRiXml = await readFile("test/fixtures/eudi-ri-ts119612-tl.xml", "utf8");
+    const eudiRiXml = await readFile(
+      "test/fixtures/eudi-ri-ts119612-tl.xml",
+      "utf8",
+    );
     const profileResponse = await app.inject({
       method: "POST",
       url: "/api/audit/artifact",
@@ -196,7 +241,9 @@ describe("API server", () => {
       },
     });
 
-    const signingCertificate = signedXml.match(/<ds:X509Certificate>([^<]+)<\/ds:X509Certificate>/)?.[1];
+    const signingCertificate = signedXml.match(
+      /<ds:X509Certificate>([^<]+)<\/ds:X509Certificate>/,
+    )?.[1];
     expect(signingCertificate).toBeDefined();
     const signedArtifactResponse = await app.inject({
       method: "POST",
@@ -206,7 +253,9 @@ describe("API server", () => {
         source: "signed-fixture.xml",
         contentType: "application/xml",
         context: {
-          trustedSignerFingerprintsSha256: ["f67ceee86d57b888ffac479f1466e7acc38f7e36318cc5374d0fcf3406135efa"],
+          trustedSignerFingerprintsSha256: [
+            "f67ceee86d57b888ffac479f1466e7acc38f7e36318cc5374d0fcf3406135efa",
+          ],
           ts119612Signer: {
             trustAnchors: [signingCertificate],
             revocation: {
@@ -214,29 +263,50 @@ describe("API server", () => {
               source: "deterministic-api-test-status",
               checkedAt: "2026-07-22T10:45:00Z",
               nextUpdate: "2030-07-22T11:00:00Z",
-              signerFingerprintSha256: "f67ceee86d57b888ffac479f1466e7acc38f7e36318cc5374d0fcf3406135efa",
+              signerFingerprintSha256:
+                "f67ceee86d57b888ffac479f1466e7acc38f7e36318cc5374d0fcf3406135efa",
             },
           },
         },
       },
     });
     expect(signedArtifactResponse.statusCode).toBe(200);
-    expect(signedArtifactResponse.json().result.ts119612Coverage).toMatchObject({
-      ledger: { total: 69 },
-      completeVerdictEligible: false,
-      requirements: expect.any(Array),
-    });
-    expect(signedArtifactResponse.json().result.ts119612Coverage.requirements).toHaveLength(69);
-    expect(signedArtifactResponse.json().result.ts119612.checks).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: "ts119612.signature.certificate_path", status: "pass" }),
-      expect.objectContaining({ id: "ts119612.signature.revocation", status: "pass" }),
-      expect.objectContaining({ id: "ts119612.signature.signer_trust", status: "pass" }),
-    ]));
+    expect(signedArtifactResponse.json().result.ts119612Coverage).toMatchObject(
+      {
+        ledger: { total: 69 },
+        completeVerdictEligible: false,
+        requirements: expect.any(Array),
+      },
+    );
+    expect(
+      signedArtifactResponse.json().result.ts119612Coverage.requirements,
+    ).toHaveLength(69);
+    expect(signedArtifactResponse.json().result.ts119612.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "ts119612.signature.certificate_path",
+          status: "pass",
+        }),
+        expect.objectContaining({
+          id: "ts119612.signature.revocation",
+          status: "pass",
+        }),
+        expect.objectContaining({
+          id: "ts119612.signature.signer_trust",
+          status: "pass",
+        }),
+      ]),
+    );
 
     const jadesResponse = await app.inject({
       method: "POST",
       url: "/api/audit/artifact",
-      payload: { content: jades, source: "fixture.jws", contentType: "application/jose", options: { strict: false } },
+      payload: {
+        content: jades,
+        source: "fixture.jws",
+        contentType: "application/jose",
+        options: { strict: false },
+      },
     });
     expect(jadesResponse.statusCode).toBe(200);
     expect(jadesResponse.json().result).toMatchObject({
@@ -244,7 +314,10 @@ describe("API server", () => {
       detected: { format: "jws", artifactKind: "json_lote" },
       ts119602: {
         checks: expect.arrayContaining([
-          expect.objectContaining({ id: "json_lote.signature.jades_cryptographic_verification_result", status: "pass" }),
+          expect.objectContaining({
+            id: "json_lote.signature.jades_cryptographic_verification_result",
+            status: "pass",
+          }),
         ]),
       },
       ts119602Coverage: {
@@ -253,12 +326,17 @@ describe("API server", () => {
         requirements: expect.any(Array),
       },
     });
-    expect(jadesResponse.json().result.ts119602Coverage.requirements).toHaveLength(81);
+    expect(
+      jadesResponse.json().result.ts119602Coverage.requirements,
+    ).toHaveLength(81);
 
     const chainResponse = await app.inject({
       method: "POST",
       url: "/api/audit/certificate-chain",
-      payload: { chain: ["malformed-certificate"], declaredRole: "access_ca_or_wrpac_provider" },
+      payload: {
+        chain: ["malformed-certificate"],
+        declaredRole: "access_ca_or_wrpac_provider",
+      },
     });
     expect(chainResponse.statusCode).toBe(200);
     expect(chainResponse.json().assessment.chainStructurallyValid).toBe(false);
@@ -279,12 +357,20 @@ describe("API server", () => {
 
   it("accepts explicit TS 119 602 contextual evidence without enabling network dereferencing", async () => {
     const app = await buildServer();
-    const current = (await readFile("test/fixtures/ts119602-context-current.jws", "utf8")).trim();
+    const current = (
+      await readFile("test/fixtures/ts119602-context-current.jws", "utf8")
+    ).trim();
     const prior = structuredClone(parseCompactJades(current).parsedPayload) as {
-      LoTE: { ListAndSchemeInformation: { LoTESequenceNumber: number; ListIssueDateTime: string } };
+      LoTE: {
+        ListAndSchemeInformation: {
+          LoTESequenceNumber: number;
+          ListIssueDateTime: string;
+        };
+      };
     };
     prior.LoTE.ListAndSchemeInformation.LoTESequenceNumber = 1;
-    prior.LoTE.ListAndSchemeInformation.ListIssueDateTime = "2026-01-01T00:00:00Z";
+    prior.LoTE.ListAndSchemeInformation.ListIssueDateTime =
+      "2026-01-01T00:00:00Z";
     globalThis.fetch = vi.fn();
     const response = await app.inject({
       method: "POST",
@@ -295,27 +381,40 @@ describe("API server", () => {
         contentType: "application/jose",
         context: {
           dereference: false,
-          priorArtifacts: [{ content: JSON.stringify(prior), source: "prior.json", contentType: "application/json" }],
+          priorArtifacts: [
+            {
+              content: JSON.stringify(prior),
+              source: "prior.json",
+              contentType: "application/json",
+            },
+          ],
           maxDereferences: 16,
           maxBytesPerArtifact: 1000000,
           concurrency: 2,
           maxTraversalDepth: 2,
           ts119602: {
             expiredServiceStatusUris: ["urn:example:status:expired"],
-            resources: [{
-              location: "https://operator.example.test/wallet-providers",
-              sha256: "0".repeat(64),
-              assertions: ["scheme_scope_and_context"],
-              source: "review-record",
-              checkedAt: "2026-07-21T00:00:00Z",
-            }],
+            resources: [
+              {
+                location: "https://operator.example.test/wallet-providers",
+                sha256: "0".repeat(64),
+                assertions: ["scheme_scope_and_context"],
+                source: "review-record",
+                checkedAt: "2026-07-21T00:00:00Z",
+              },
+            ],
             authoritative: {
               schemeOperator: {
                 source: "official-register",
                 checkedAt: "2026-07-21T00:00:00Z",
                 names: ["JSON-Operator"],
-                postalAddresses: [{ streetAddress: "1 Commission Street", country: "EU" }],
-                electronicAddresses: ["mailto:operator@example.test", "https://operator.example.test"],
+                postalAddresses: [
+                  { streetAddress: "1 Commission Street", country: "EU" },
+                ],
+                electronicAddresses: [
+                  "mailto:operator@example.test",
+                  "https://operator.example.test",
+                ],
               },
             },
           },
@@ -326,9 +425,18 @@ describe("API server", () => {
     expect(response.json().result).toMatchObject({
       ts119602: {
         checks: expect.arrayContaining([
-          expect.objectContaining({ id: "ts119602.scheme.sequence.history", status: "pass" }),
-          expect.objectContaining({ id: "ts119602.scheme.pointers.authentication", status: "not_checked" }),
-          expect.objectContaining({ id: "ts119602.context.bounds", status: "pass" }),
+          expect.objectContaining({
+            id: "ts119602.scheme.sequence.history",
+            status: "pass",
+          }),
+          expect.objectContaining({
+            id: "ts119602.scheme.pointers.authentication",
+            status: "not_checked",
+          }),
+          expect.objectContaining({
+            id: "ts119602.context.bounds",
+            status: "pass",
+          }),
         ]),
       },
     });
@@ -337,15 +445,23 @@ describe("API server", () => {
     const invalid = await app.inject({
       method: "POST",
       url: "/api/audit/artifact",
-      payload: { content: current, context: { dereference: true, maxDereferences: 33 } },
+      payload: {
+        content: current,
+        context: { dereference: true, maxDereferences: 33 },
+      },
     });
     expect(invalid.statusCode).toBe(400);
-    expect(invalid.json()).toMatchObject({ error: { code: "invalid_request" } });
+    expect(invalid.json()).toMatchObject({
+      error: { code: "invalid_request" },
+    });
 
     const invalidDepth = await app.inject({
       method: "POST",
       url: "/api/audit/artifact",
-      payload: { content: current, context: { dereference: true, maxTraversalDepth: 9 } },
+      payload: {
+        content: current,
+        context: { dereference: true, maxTraversalDepth: 9 },
+      },
     });
     expect(invalidDepth.statusCode).toBe(400);
     const invalidAssertion = await app.inject({
@@ -353,7 +469,19 @@ describe("API server", () => {
       url: "/api/audit/artifact",
       payload: {
         content: current,
-        context: { ts119602: { resources: [{ location: "https://example.test/page", sha256: "0".repeat(64), assertions: ["invented_semantics"], source: "review", checkedAt: "2026-07-21T00:00:00Z" }] } },
+        context: {
+          ts119602: {
+            resources: [
+              {
+                location: "https://example.test/page",
+                sha256: "0".repeat(64),
+                assertions: ["invented_semantics"],
+                source: "review",
+                checkedAt: "2026-07-21T00:00:00Z",
+              },
+            ],
+          },
+        },
       },
     });
     expect(invalidAssertion.statusCode).toBe(400);
@@ -449,8 +577,14 @@ describe("API server", () => {
 
   it("serves loadable OpenAPI specs with required paths", async () => {
     const app = await buildServer();
-    const yamlResponse = await app.inject({ method: "GET", url: "/openapi.yaml" });
-    const jsonResponse = await app.inject({ method: "GET", url: "/openapi.json" });
+    const yamlResponse = await app.inject({
+      method: "GET",
+      url: "/openapi.yaml",
+    });
+    const jsonResponse = await app.inject({
+      method: "GET",
+      url: "/openapi.json",
+    });
     expect(yamlResponse.statusCode).toBe(200);
     expect(jsonResponse.statusCode).toBe(200);
     const parsedYaml = YAML.parse(yamlResponse.body);
@@ -473,32 +607,76 @@ describe("API server", () => {
       expect(parsedYaml.paths[path]).toBeDefined();
       expect(parsedJson.paths[path]).toBeDefined();
     }
-    expect(parsedYaml.components.schemas.Ts119602ContextOptions).toEqual(parsedJson.components.schemas.Ts119602ContextOptions);
-    expect(parsedJson.components.schemas.Ts119612SignerEvidence.properties.revocation.required)
-      .toContain("signerFingerprintSha256");
-    expect(parsedJson.components.schemas.Ts119602ContextOptions.properties.pointerSigners.items.$ref)
-      .toBe("#/components/schemas/TrustListPointerSignerEvidence");
-    expect(parsedJson.components.schemas.Ts119602ContextOptions.properties.ts119602.$ref)
-      .toBe("#/components/schemas/Ts119602ContextualEvidence");
-    expect(parsedJson.components.schemas.Ts119602ResourceEvidence.required).toContain("sha256");
-    expect(parsedJson.components.schemas.TrustListPointerSignerEvidence.required).toContain("location");
-    expect(parsedJson.components.schemas.CertificateSummary.properties.source.enum).toContain("json_signature");
-    expect(parsedJson.components.schemas.AuditReport.properties.schemaVersion.const).toBe(7);
-    expect(parsedJson.components.schemas.TrustedListAuditResult.required).toContain("referenceProfiles");
-    expect(parsedJson.components.schemas.TrustedListAuditResult.properties.ts119612Coverage.$ref)
-      .toBe("#/components/schemas/Ts119612CoverageAudit");
-    expect(parsedJson.components.schemas.Ts119612CoverageAudit.required).toContain("completeVerdictEligible");
-    expect(parsedJson.components.schemas.TrustedListAuditResult.properties.ts119602Coverage.$ref)
-      .toBe("#/components/schemas/Ts119602CoverageAudit");
-    expect(parsedJson.components.schemas.Ts119602CoverageAudit.required).toContain("completeVerdictEligible");
-    expect(parsedJson.components.schemas.Ts119602CoverageAudit.properties.selection.required).toContain("schemeMode");
-    expect(parsedJson.components.schemas.Ts119612RequirementCoverage.properties.outcome.enum)
-      .toContain("not_implemented");
-    expect(parsedJson.components.schemas.ReferenceProfileAssessment.required).toContain("checks");
-    expect(parsedJson.info.description).toContain("pinned V1.1.1 XSD and offline catalog");
-    expect(parsedJson.paths["/api/audit/artifact"].post.description).toContain("separate pinned offline XML Schema finding");
-    const documentedExample = parsedJson.paths["/api/v1/report/markdown"].post.requestBody.content["application/json"].examples.emptyReport.value;
-    const exampleResponse = await app.inject({ method: "POST", url: "/api/v1/report/markdown", payload: documentedExample });
+    expect(parsedYaml.components.schemas.Ts119602ContextOptions).toEqual(
+      parsedJson.components.schemas.Ts119602ContextOptions,
+    );
+    expect(
+      parsedJson.components.schemas.Ts119612SignerEvidence.properties.revocation
+        .required,
+    ).toContain("signerFingerprintSha256");
+    expect(
+      parsedJson.components.schemas.Ts119602ContextOptions.properties
+        .pointerSigners.items.$ref,
+    ).toBe("#/components/schemas/TrustListPointerSignerEvidence");
+    expect(
+      parsedJson.components.schemas.Ts119602ContextOptions.properties.ts119602
+        .$ref,
+    ).toBe("#/components/schemas/Ts119602ContextualEvidence");
+    expect(
+      parsedJson.components.schemas.Ts119602ResourceEvidence.required,
+    ).toContain("sha256");
+    expect(
+      parsedJson.components.schemas.TrustListPointerSignerEvidence.required,
+    ).toContain("location");
+    expect(
+      parsedJson.components.schemas.CertificateSummary.properties.source.enum,
+    ).toContain("json_signature");
+    expect(
+      parsedJson.components.schemas.AuditReport.properties.schemaVersion.const,
+    ).toBe(7);
+    expect(
+      parsedJson.components.schemas.TrustedListAuditResult.required,
+    ).toContain("referenceProfiles");
+    expect(
+      parsedJson.components.schemas.TrustedListAuditResult.properties
+        .ts119612Coverage.$ref,
+    ).toBe("#/components/schemas/Ts119612CoverageAudit");
+    expect(
+      parsedJson.components.schemas.Ts119612CoverageAudit.required,
+    ).toContain("completeVerdictEligible");
+    expect(
+      parsedJson.components.schemas.TrustedListAuditResult.properties
+        .ts119602Coverage.$ref,
+    ).toBe("#/components/schemas/Ts119602CoverageAudit");
+    expect(
+      parsedJson.components.schemas.Ts119602CoverageAudit.required,
+    ).toContain("completeVerdictEligible");
+    expect(
+      parsedJson.components.schemas.Ts119602CoverageAudit.properties.selection
+        .required,
+    ).toContain("schemeMode");
+    expect(
+      parsedJson.components.schemas.Ts119612RequirementCoverage.properties
+        .outcome.enum,
+    ).toContain("not_implemented");
+    expect(
+      parsedJson.components.schemas.ReferenceProfileAssessment.required,
+    ).toContain("checks");
+    expect(parsedJson.info.description).toContain(
+      "pinned V1.1.1 XSD and offline catalog",
+    );
+    expect(parsedJson.paths["/api/audit/artifact"].post.description).toContain(
+      "separate pinned offline XML Schema finding",
+    );
+    const documentedExample =
+      parsedJson.paths["/api/v1/report/markdown"].post.requestBody.content[
+        "application/json"
+      ].examples.emptyReport.value;
+    const exampleResponse = await app.inject({
+      method: "POST",
+      url: "/api/v1/report/markdown",
+      payload: documentedExample,
+    });
     expect(exampleResponse.statusCode).toBe(200);
     expect(exampleResponse.json().markdown).toContain("Report schema: v7");
     await app.close();
@@ -507,9 +685,19 @@ describe("API server", () => {
   it("uses request origin in served OpenAPI specs", async () => {
     const app = await buildServer();
     const headers = { host: "127.0.0.1:8088" };
-    const yamlResponse = await app.inject({ method: "GET", url: "/openapi.yaml", headers });
-    const jsonResponse = await app.inject({ method: "GET", url: "/openapi.json", headers });
-    expect(YAML.parse(yamlResponse.body).servers[0].url).toBe("http://127.0.0.1:8088");
+    const yamlResponse = await app.inject({
+      method: "GET",
+      url: "/openapi.yaml",
+      headers,
+    });
+    const jsonResponse = await app.inject({
+      method: "GET",
+      url: "/openapi.json",
+      headers,
+    });
+    expect(YAML.parse(yamlResponse.body).servers[0].url).toBe(
+      "http://127.0.0.1:8088",
+    );
     expect(jsonResponse.json().servers[0].url).toBe("http://127.0.0.1:8088");
     await app.close();
   });
@@ -517,7 +705,11 @@ describe("API server", () => {
   it("uses PUBLIC_BASE_URL ahead of request origin", async () => {
     process.env.PUBLIC_BASE_URL = "https://audit.example.test/";
     const app = await buildServer();
-    const response = await app.inject({ method: "GET", url: "/openapi.json", headers: { host: "127.0.0.1:8088" } });
+    const response = await app.inject({
+      method: "GET",
+      url: "/openapi.json",
+      headers: { host: "127.0.0.1:8088" },
+    });
     expect(response.json().servers[0].url).toBe("https://audit.example.test");
     await app.close();
   });
@@ -534,7 +726,11 @@ describe("API server", () => {
       payload: { lotl },
     });
     expect(response.statusCode).toBe(200);
-    expect(response.json().report.summary).toMatchObject({ fetched: 0, fetchFailed: 0, unknownArtifacts: 3 });
+    expect(response.json().report.summary).toMatchObject({
+      fetched: 0,
+      fetchFailed: 0,
+      unknownArtifacts: 3,
+    });
     await app.close();
   });
 
@@ -550,26 +746,33 @@ describe("API server", () => {
 
   it("serves the local audit interface and its assets", async () => {
     const app = await buildServer();
-    const [page, css, script, favicon, sharedCss, negativeLogo] = await Promise.all([
-      app.inject({ method: "GET", url: "/" }),
-      app.inject({ method: "GET", url: "/assets/audit-ui.css" }),
-      app.inject({ method: "GET", url: "/assets/audit-ui.js" }),
-      app.inject({ method: "GET", url: "/assets/credimi_logo.svg" }),
-      app.inject({ method: "GET", url: "/assets/style.css" }),
-      app.inject({ method: "GET", url: "/assets/credimi_logo_negative.svg" }),
-    ]);
+    const [page, css, script, favicon, sharedCss, negativeLogo] =
+      await Promise.all([
+        app.inject({ method: "GET", url: "/" }),
+        app.inject({ method: "GET", url: "/assets/audit-ui.css" }),
+        app.inject({ method: "GET", url: "/assets/audit-ui.js" }),
+        app.inject({ method: "GET", url: "/assets/credimi_logo.svg" }),
+        app.inject({ method: "GET", url: "/assets/style.css" }),
+        app.inject({ method: "GET", url: "/assets/credimi_logo_negative.svg" }),
+      ]);
     expect(page.statusCode).toBe(200);
     expect(page.headers["content-type"]).toContain("text/html");
-    expect(page.body).toContain("id=\"lotl-url\"");
+    expect(page.body).toContain('id="lotl-url"');
     expect(page.body).toContain("Advanced options");
     expect(page.body).toContain("/assets/audit-ui.js");
     expect(page.body).toContain('rel="icon" href="/favicon.svg"');
     expect(page.body).toContain('href="/assets/style.css"');
     expect(page.body).toContain("eudi-trust-inspector");
-    expect(page.body).toContain('class="brand-logo-link"');
-    expect(page.body).toContain('class="brand-title" href="/">EUDI Trust Inspector</a>');
+    expect(page.body).toContain('class="brand-lockup" href="/"');
+    expect(page.body).toContain(
+      '<span class="brand-name">EUDI Trust Inspector</span>',
+    );
+    expect(page.body).toContain('class="hero-band"');
+    expect(page.body).not.toContain('class="summary-panel"');
+    expect(page.body).not.toContain("<style>");
     expect(css.headers["content-type"]).toContain("text/css");
-    expect(css.body).toContain("--brand-primary");
+    expect(css.body).toContain("--audit-max-width");
+    expect(css.body).toContain(".hero-band");
     expect(script.headers["content-type"]).toContain("application/javascript");
     expect(script.body).toContain("/api/audit/lotl");
     expect(script.body).toContain("/api/audit/artifact");
