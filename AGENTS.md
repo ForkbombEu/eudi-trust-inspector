@@ -6,6 +6,8 @@ Read the content of:
 ./HITL
 HITL.md
 
+Read `./STANDARDS.md` before changing protocol, standards, conformance, credential, trust, or interoperability behaviour.
+Read `./SPECS.md` before changing implementation, architecture, dependencies, build tooling, or development workflow.
 
 ## Execution
 
