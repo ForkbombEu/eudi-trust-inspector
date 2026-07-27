@@ -492,7 +492,7 @@ textarea:focus {
 }
 
 .footer {
-  padding: 48px 0;
+  padding: 32px 0 64px;
 }
 
 .footer-content {
