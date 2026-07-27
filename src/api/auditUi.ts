@@ -52,7 +52,6 @@ export function renderAuditUiHtml(): string {
             <p>Evidence-oriented audit tool for EUDI and WE BUILD trusted lists.</p>
           </div>
           <nav class="footer-links" aria-label="Project links">
-            <a class="footer-link" href="https://forkbomb.eu" target="_blank" rel="noreferrer">Developed by Forkbomb BV</a>
             <a class="footer-link fork-link" href="https://github.com/ForkbombEu/eudi-trust-inspector" target="_blank" rel="noreferrer">Repository</a>
           </nav>
         </div>
