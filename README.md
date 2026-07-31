@@ -25,7 +25,7 @@ The homepage introduces the assessment in a compact hero followed by the audit f
 
 ### LoTL
 
-Provide a LoTL URL or upload its JSON. The result groups findings by fetched TrustedList and separates pass, warning, failure, and not-final states.
+Provide a LoTL URL or upload its JSON. The result groups findings by fetched TrustedList and separates pass, warning, failure, and not-final states. Long findings lists expand the page, while JSON and Markdown output remain bounded scrollable panels.
 
 ### TrustedList XML/JSON
 

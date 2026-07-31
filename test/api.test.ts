@@ -781,6 +781,10 @@ describe("API server", () => {
     expect(script.body).toContain("Negative fixture descriptors");
     expect(script.body).toContain("Fetched TrustedList:");
     expect(css.body).toContain(".result-group");
+    expect(css.body).not.toMatch(/\.result-panel\s*\{\s*max-height:/);
+    expect(css.body).toMatch(
+      /#json-result,\s*#markdown-result\s*\{\s*max-height:\s*680px;/,
+    );
     expect(favicon.headers["content-type"]).toContain("image/svg+xml");
     expect(favicon.body).toContain("<svg");
     expect(sharedCss.headers["content-type"]).toContain("text/css");

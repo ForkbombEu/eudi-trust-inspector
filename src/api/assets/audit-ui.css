@@ -486,7 +486,8 @@ textarea:focus {
   color: var(--info);
 }
 
-.result-panel {
+#json-result,
+#markdown-result {
   max-height: 680px;
   white-space: pre-wrap;
 }
