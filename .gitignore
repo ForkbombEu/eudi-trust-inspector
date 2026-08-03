@@ -3,6 +3,7 @@ dist/
 coverage/
 audit-output/
 tl-audit-output/
+.worktrees/
 .env
 artifacts/*
 !artifacts/handoffs/
