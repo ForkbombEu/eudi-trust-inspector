@@ -73,6 +73,23 @@ describe("API server", () => {
     await app.close();
   });
 
+  it("parses ETSI TS 119 612 XML LoTL pointers without fetching", async () => {
+    const app = await buildServer();
+    const lotl = await readFile("test/fixtures/lotl-ts119612.xml", "utf8");
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/lotl/parse",
+      payload: { lotl },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      summary: { pointerCount: 1, uniqueLocationCount: 1 },
+      pointers: [{ index: 1, location: "https://example.test/member-state.xml" }],
+    });
+    await app.close();
+  });
+
   it("audits JSON LoTL and returns JSON report plus Markdown", async () => {
     const app = await buildServer();
     const lotl = JSON.parse(await readFile("test/fixtures/lotl.json", "utf8"));
@@ -355,6 +372,49 @@ describe("API server", () => {
     await app.close();
   });
 
+  it("audits ETSI TS 119 612 XML LoTL request content", async () => {
+    const app = await buildServer();
+    const content = await readFile("test/fixtures/lotl-ts119612.xml", "utf8");
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/audit/lotl",
+      payload: { content, options: { fetch: false } },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().report).toMatchObject({
+      input: { source: "request-body", kind: "xml" },
+      summary: { totalPointers: 1, fetched: 0 },
+    });
+    await app.close();
+  });
+
+  it("audits an ETSI TS 119 612 XML LoTL URL without fetching its pointers", async () => {
+    const app = await buildServer();
+    const content = await readFile("test/fixtures/lotl-ts119612.xml", "utf8");
+    globalThis.fetch = vi.fn(async () => new Response(content, {
+      status: 200,
+      headers: { "content-type": "application/xml" },
+    })) as typeof fetch;
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/v1/audit/url",
+      payload: {
+        url: "https://example.test/eu-lotl.xml",
+        options: { fetch: false },
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().report).toMatchObject({
+      input: { source: "https://example.test/eu-lotl.xml", kind: "url" },
+      summary: { totalPointers: 1, fetched: 0 },
+    });
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    await app.close();
+  });
+
   it("accepts explicit TS 119 602 contextual evidence without enabling network dereferencing", async () => {
     const app = await buildServer();
     const current = (
@@ -572,6 +632,33 @@ describe("API server", () => {
         message: "Invalid request body.",
       },
     });
+    await app.close();
+  });
+
+  it("returns format-specific LoTL parse errors", async () => {
+    const app = await buildServer();
+    const malformedXml = await app.inject({
+      method: "POST",
+      url: "/api/v1/lotl/parse",
+      payload: { lotl: "<TrustServiceStatusList>" },
+    });
+    const malformedJson = await app.inject({
+      method: "POST",
+      url: "/api/v1/audit/json",
+      payload: { lotl: "{" },
+    });
+    const xmlOnJsonEndpoint = await app.inject({
+      method: "POST",
+      url: "/api/v1/audit/json",
+      payload: { lotl: "<TrustServiceStatusList/>" },
+    });
+
+    expect(malformedXml.statusCode).toBe(400);
+    expect(malformedXml.json()).toMatchObject({ error: { code: "invalid_lotl_xml" } });
+    expect(malformedJson.statusCode).toBe(400);
+    expect(malformedJson.json()).toMatchObject({ error: { code: "invalid_lotl_json" } });
+    expect(xmlOnJsonEndpoint.statusCode).toBe(400);
+    expect(xmlOnJsonEndpoint.json()).toMatchObject({ error: { code: "invalid_lotl_json" } });
     await app.close();
   });
 

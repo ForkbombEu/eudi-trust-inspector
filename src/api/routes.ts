@@ -3,13 +3,14 @@ import { readFile } from "node:fs/promises";
 import {
   assessArtifactContent,
   assessArtifactUrl,
+  runAuditFromContent,
   runAuditFromJson,
   runAuditFromUrl,
 } from "../audit.js";
 import { assessCertificateChain } from "../eudi/certificateChain.js";
 import type { EudiTrustRole } from "../eudi/roles.js";
 import { isUrl } from "../input.js";
-import { parseLotlJson } from "../lotl.js";
+import { parseLotl } from "../lotl.js";
 import { renderMarkdownReport } from "../report/markdownReport.js";
 import type {
   AuditReport,
@@ -221,7 +222,7 @@ export async function registerRoutes(
     "/api/v1/lotl/parse",
     { schema: lotlParseSchema },
     async (request) => {
-      const parsed = parseLotlJson(lotlText(request.body.lotl));
+      const parsed = parseLotl(lotlText(request.body.lotl));
       return {
         summary: parsed.summary,
         pointers: parsed.pointers.map((pointer) => ({
@@ -331,11 +332,10 @@ async function auditLotl(
       throw app.httpErrors.badRequest("Invalid URL.", { code: "invalid_url" });
     return runAuditFromUrl(body.url, auditOptions, routeOptions.version);
   }
-  return runAuditFromJson(
-    body.content ?? body.lotl,
-    auditOptions,
-    routeOptions.version,
-  );
+  if (body.content !== undefined) {
+    return runAuditFromContent(body.content, auditOptions, routeOptions.version);
+  }
+  return runAuditFromJson(body.lotl, auditOptions, routeOptions.version);
 }
 
 function lotlText(value: unknown): string {

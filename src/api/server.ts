@@ -2,6 +2,7 @@ import { createRequire } from "node:module";
 import "dotenv/config";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
+import { LotlParseError } from "../lotl.js";
 import { loadApiConfig } from "./config.js";
 import { registerRoutes } from "./routes.js";
 
@@ -38,6 +39,16 @@ export async function buildServer(): Promise<ReturnType<typeof Fastify>> {
           code: "invalid_request",
           message: "Invalid request body.",
           details: apiError.validation,
+        },
+      });
+      return;
+    }
+
+    if (error instanceof LotlParseError) {
+      reply.status(400).send({
+        error: {
+          code: error.format === "unknown" ? "invalid_lotl" : `invalid_lotl_${error.format}`,
+          message: apiError.message,
         },
       });
       return;

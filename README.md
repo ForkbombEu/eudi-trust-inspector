@@ -46,6 +46,7 @@ Provide a TrustedList URL, upload XML/JSON/JWS, or paste content. The UI renders
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Health                   | `curl http://127.0.0.1:3000/healthz`                                                                                                                                                     |
 | Audit a LoTL URL         | `curl -X POST http://127.0.0.1:3000/api/v1/audit/url -H 'content-type: application/json' -d '{"url":"https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json"}'` |
+| Audit ETSI XML LoTL URL  | `curl -X POST http://127.0.0.1:3000/api/v1/audit/url -H 'content-type: application/json' -d '{"url":"https://ec.europa.eu/tools/lotl/eu-lotl.xml","options":{"fetch":false}}'`        |
 | Assess a TrustedList URL | `curl -X POST http://127.0.0.1:3000/api/v1/artifact/assess-url -H 'content-type: application/json' -d '{"url":"https://example.org/trusted-list.xml"}'`                                  |
 | Parse a LoTL             | `curl -X POST http://127.0.0.1:3000/api/v1/lotl/parse -H 'content-type: application/json' -d '{"lotl":{"LoTE":{"ListAndSchemeInformation":{"PointersToOtherLoTE":[]}}}}'`                |
 
