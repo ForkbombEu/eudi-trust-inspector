@@ -31,6 +31,8 @@ Provide a JSON or ETSI TS 119 612 XML LoTL URL, or upload a local XML or JSON fi
 
 Provide a TrustedList URL, upload XML/JSON/JWS, or paste content. The UI renders findings, the complete JSON result, and available Markdown.
 
+For signed LoTL/LoTE inputs, the embedded `ds:KeyInfo` signing certificate is compared with every applicable `ServiceDigitalIdentity` certificate. The exact-certificate check passes when any candidate matches; certificate ordering does not affect the result.
+
 ## CLI Examples
 
 | Function                     | Example                                                                                                                             |

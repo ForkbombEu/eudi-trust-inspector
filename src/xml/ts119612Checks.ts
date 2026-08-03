@@ -115,7 +115,7 @@ export async function assessTs119612Xml(
 
   const pubEaaAlternativeBinding = text(document, D("TSLType")) === PUB_EAA_LOTE_TYPE;
   const signature = await assessSignature(xml, document, assessmentDate, {}, {
-    requireFirstListCertificateMatch: isLotlOrLoteType(text(document, D("TSLType"))),
+    requireListCertificateMatch: isLotlOrLoteType(text(document, D("TSLType"))),
     requireBaselineB: true,
     requireAnnexH4: pubEaaAlternativeBinding,
     requireTs119612Profile: true,

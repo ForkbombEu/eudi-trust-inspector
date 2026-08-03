@@ -20,10 +20,10 @@ async function xadesFixture(): Promise<string> {
   return template.replace("{{SIGNING_CERTIFICATE}}", certificate);
 }
 
-function withFirstListCertificate(xml: string, certificate: string): string {
+function withListCertificates(xml: string, certificates: string[]): string {
   return xml.replace(
     "<TrustServiceProviderList />",
-    `<TrustServiceProviderList><TrustServiceProvider><TSPServices><TSPService><ServiceInformation><ServiceDigitalIdentity><DigitalId><X509Certificate>${certificate}</X509Certificate></DigitalId></ServiceDigitalIdentity></ServiceInformation></TSPService></TSPServices></TrustServiceProvider></TrustServiceProviderList>`,
+    `<TrustServiceProviderList><TrustServiceProvider><TSPServices><TSPService><ServiceInformation><ServiceDigitalIdentity>${certificates.map((certificate) => `<DigitalId><X509Certificate>${certificate}</X509Certificate></DigitalId>`).join("")}</ServiceDigitalIdentity></ServiceInformation></TSPService></TSPServices></TrustServiceProvider></TrustServiceProviderList>`,
   );
 }
 
@@ -80,23 +80,48 @@ describe("assessSignature", () => {
     );
   });
 
-  it("requires the first list certificate to exactly equal the ds:KeyInfo signing certificate", async () => {
+  it("requires a list certificate to exactly equal the ds:KeyInfo signing certificate", async () => {
     const xml = await signedFixture();
     const signingCertificate = xml.match(/<ds:X509Certificate>([^<]+)<\/ds:X509Certificate>/)?.[1];
     if (!signingCertificate) throw new Error("Fixture must contain a signing certificate.");
-    const document = parseXml(withFirstListCertificate(xml, signingCertificate)).document;
+    const document = parseXml(withListCertificates(xml, [signingCertificate])).document;
     if (!document) throw new Error("Fixture must parse.");
 
     const result = await assessSignature(xml, document, new Date("2026-08-01T00:00:00Z"), {
       verifier: () => ({ status: "pass", message: "Test verifier accepted the signature." }),
-    }, { requireFirstListCertificateMatch: true });
+    }, { requireListCertificateMatch: true });
 
     expect(result.checks).toContainEqual(expect.objectContaining({
-      id: "signature.first_list_certificate_exact_match",
+      id: "signature.list_certificate_exact_match",
       status: "pass",
       evidence: expect.objectContaining({
-        listCertificateFingerprintSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        listCertificateFingerprintsSha256: [expect.stringMatching(/^[a-f0-9]{64}$/)],
+        matchingListCertificateIndexes: [1],
         signingCertificateFingerprintSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      }),
+    }));
+  });
+
+  it("accepts a ds:KeyInfo signing certificate that matches a later ServiceDigitalIdentity certificate", async () => {
+    const xml = await signedFixture();
+    const signingCertificate = xml.match(/<ds:X509Certificate>([^<]+)<\/ds:X509Certificate>/)?.[1];
+    if (!signingCertificate) throw new Error("Fixture must contain a signing certificate.");
+    const document = parseXml(withListCertificates(xml, [sameKeySecondCertificate, signingCertificate])).document;
+    if (!document) throw new Error("Fixture must parse.");
+
+    const result = await assessSignature(xml, document, new Date("2026-08-01T00:00:00Z"), {
+      verifier: () => ({ status: "pass", message: "Test verifier accepted the signature." }),
+    }, { requireListCertificateMatch: true });
+
+    expect(result.checks).toContainEqual(expect.objectContaining({
+      id: "signature.list_certificate_exact_match",
+      status: "pass",
+      evidence: expect.objectContaining({
+        listCertificateFingerprintsSha256: [
+          expect.stringMatching(/^[a-f0-9]{64}$/),
+          expect.stringMatching(/^[a-f0-9]{64}$/),
+        ],
+        matchingListCertificateIndexes: [2],
       }),
     }));
   });
@@ -104,15 +129,15 @@ describe("assessSignature", () => {
   it("fails when certificates share a public key but differ from ds:KeyInfo", async () => {
     const xml = await signedFixture();
     const xmlWithFirstCertificate = xml.replace(/(<ds:X509Certificate>)[^<]+/, `$1${sameKeyFirstCertificate}`);
-    const document = parseXml(withFirstListCertificate(xmlWithFirstCertificate, sameKeySecondCertificate)).document;
+    const document = parseXml(withListCertificates(xmlWithFirstCertificate, [sameKeySecondCertificate])).document;
     if (!document) throw new Error("Fixture must parse.");
 
     const result = await assessSignature(xmlWithFirstCertificate, document, new Date("2026-08-01T00:00:00Z"), {
       verifier: () => ({ status: "pass", message: "Test verifier accepted the signature." }),
-    }, { requireFirstListCertificateMatch: true });
+    }, { requireListCertificateMatch: true });
 
     expect(result.checks).toContainEqual(expect.objectContaining({
-      id: "signature.first_list_certificate_exact_match",
+      id: "signature.list_certificate_exact_match",
       status: "fail",
     }));
   });

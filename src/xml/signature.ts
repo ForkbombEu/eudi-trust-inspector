@@ -29,7 +29,9 @@ export interface SignatureAssessmentDependencies {
 }
 
 export interface SignatureAssessmentOptions extends XadesAssessmentOptions {
-  /** Require the first list ServiceDigitalIdentity certificate to equal the XMLDSig signing certificate. */
+  /** Require one list ServiceDigitalIdentity certificate to equal the XMLDSig signing certificate. */
+  requireListCertificateMatch?: boolean;
+  /** @deprecated Use requireListCertificateMatch. */
   requireFirstListCertificateMatch?: boolean;
   /** Apply ETSI TS 119 612 V2.4.1 clauses 5.7 and normative Annex B. */
   requireTs119612Profile?: boolean;
@@ -45,6 +47,9 @@ export async function assessSignature(
 ): Promise<SignatureAssessment> {
   const checks: CheckResult[] = [];
   const certificates: CertificateSummary[] = [];
+  const requireListCertificateMatch = options.requireListCertificateMatch
+    ?? options.requireFirstListCertificateMatch
+    ?? false;
   const signatureNode = document.getElementsByTagNameNS("http://www.w3.org/2000/09/xmldsig#", "Signature")[0]
     ?? document.getElementsByTagName("Signature")[0];
 
@@ -57,8 +62,8 @@ export async function assessSignature(
       check("signature.cryptographic_verification_result", "not_checked", "info", "Cryptographic verification has no result because ds:Signature is absent."),
       check("signature.xades_properties_detected", "not_checked", "info", "XAdES properties were not checked because ds:Signature is absent."),
     );
-    if (options.requireFirstListCertificateMatch) {
-      checks.push(...firstListCertificateChecks(document, undefined));
+    if (requireListCertificateMatch) {
+      checks.push(...listCertificateChecks(document, undefined));
     }
     checks.push(...assessXadesSignature(document, undefined, undefined, undefined, options));
     if (options.requireTs119612Profile) {
@@ -159,8 +164,8 @@ export async function assessSignature(
     ));
   }
 
-  if (options.requireFirstListCertificateMatch) {
-    checks.push(...firstListCertificateChecks(document, verificationEntry?.certificate));
+  if (requireListCertificateMatch) {
+    checks.push(...listCertificateChecks(document, verificationEntry?.certificate));
   }
 
   const xadesDetected = has(document, "//*[local-name()='QualifyingProperties']") || has(document, "//*[local-name()='SignedProperties']");
@@ -197,51 +202,63 @@ export async function assessSignature(
   return { checks, certificates };
 }
 
-function firstListCertificateChecks(document: Document, signingCertificate: string | undefined): CheckResult[] {
-  const firstListCertificate = texts(
+function listCertificateChecks(document: Document, signingCertificate: string | undefined): CheckResult[] {
+  const listCertificates = texts(
     document,
-    "(//*[local-name()='TrustServiceProviderList']//*[local-name()='ServiceDigitalIdentity']//*[local-name()='X509Certificate'] | //*[local-name()='OtherTSLPointer']//*[local-name()='ServiceDigitalIdentity']//*[local-name()='X509Certificate'])[1]",
-  )[0];
+    "//*[local-name()='TrustServiceProviderList']//*[local-name()='ServiceDigitalIdentity']//*[local-name()='X509Certificate'] | //*[local-name()='OtherTSLPointer']//*[local-name()='ServiceDigitalIdentity']//*[local-name()='X509Certificate']",
+  );
 
-  if (!firstListCertificate) {
+  if (listCertificates.length === 0) {
     return [check(
-      "signature.first_list_certificate_present",
+      "signature.list_certificate_present",
       "fail",
       "error",
-      "The first list ServiceDigitalIdentity certificate is missing; it cannot be compared with ds:KeyInfo.",
+      "No list ServiceDigitalIdentity certificate is present for comparison with ds:KeyInfo.",
     )];
   }
 
   if (!signingCertificate) {
     return [check(
-      "signature.first_list_certificate_exact_match",
+      "signature.list_certificate_exact_match",
       "not_checked",
       "info",
-      "The first list certificate was not compared because ds:KeyInfo has no parseable signing certificate.",
+      "List certificates were not compared because ds:KeyInfo has no parseable signing certificate.",
+      { listCertificateCount: listCertificates.length },
     )];
   }
 
-  const listCertificateFingerprint = certificateFingerprintSha256(firstListCertificate);
+  const listCertificateFingerprints = listCertificates.map(certificateFingerprintSha256);
   const signingCertificateFingerprint = certificateFingerprintSha256(signingCertificate);
-  if (!listCertificateFingerprint || !signingCertificateFingerprint) {
+  if (!signingCertificateFingerprint) {
     return [check(
-      "signature.first_list_certificate_exact_match",
+      "signature.list_certificate_exact_match",
       "fail",
       "error",
-      "The first list certificate or ds:KeyInfo signing certificate could not be decoded for exact comparison.",
-      { listCertificateFingerprintSha256: listCertificateFingerprint, signingCertificateFingerprintSha256: signingCertificateFingerprint },
+      "The ds:KeyInfo signing certificate could not be decoded for exact comparison with list certificates.",
+      {
+        listCertificateFingerprintsSha256: listCertificateFingerprints.map((fingerprint) => fingerprint ?? null),
+        matchingListCertificateIndexes: [],
+        signingCertificateFingerprintSha256: signingCertificateFingerprint,
+      },
     )];
   }
 
-  const matches = listCertificateFingerprint === signingCertificateFingerprint;
+  const matchingListCertificateIndexes = listCertificateFingerprints
+    .map((fingerprint, index) => fingerprint === signingCertificateFingerprint ? index + 1 : undefined)
+    .filter((index): index is number => index !== undefined);
+  const matches = matchingListCertificateIndexes.length > 0;
   return [check(
-    "signature.first_list_certificate_exact_match",
+    "signature.list_certificate_exact_match",
     matches ? "pass" : "fail",
     matches ? "info" : "error",
     matches
-      ? "The first list ServiceDigitalIdentity certificate exactly equals the ds:KeyInfo signing certificate."
-      : "The first list ServiceDigitalIdentity certificate differs from the ds:KeyInfo signing certificate.",
-    { listCertificateFingerprintSha256: listCertificateFingerprint, signingCertificateFingerprintSha256: signingCertificateFingerprint },
+      ? "A list ServiceDigitalIdentity certificate exactly equals the ds:KeyInfo signing certificate."
+      : "No list ServiceDigitalIdentity certificate exactly equals the ds:KeyInfo signing certificate.",
+    {
+      listCertificateFingerprintsSha256: listCertificateFingerprints.map((fingerprint) => fingerprint ?? null),
+      matchingListCertificateIndexes,
+      signingCertificateFingerprintSha256: signingCertificateFingerprint,
+    },
   )];
 }
 
