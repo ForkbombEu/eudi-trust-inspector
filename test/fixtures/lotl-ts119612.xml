@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TrustServiceStatusList
+  xmlns="http://uri.etsi.org/02231/v2#"
+  xmlns:at="http://uri.etsi.org/02231/v2/additionaltypes#"
+  Id="TEST-LOTL"
+  TSLTag="http://uri.etsi.org/19612/TSLTag">
+  <SchemeInformation>
+    <TSLVersionIdentifier>6</TSLVersionIdentifier>
+    <TSLSequenceNumber>7</TSLSequenceNumber>
+    <TSLType>http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUlistofthelists</TSLType>
+    <SchemeOperatorName><Name xml:lang="en">Example Commission</Name></SchemeOperatorName>
+    <SchemeName><Name xml:lang="en">EU:Example List of Trusted Lists</Name></SchemeName>
+    <SchemeTerritory>EU</SchemeTerritory>
+    <PointersToOtherTSL>
+      <OtherTSLPointer>
+        <ServiceDigitalIdentities>
+          <ServiceDigitalIdentity><DigitalId/></ServiceDigitalIdentity>
+        </ServiceDigitalIdentities>
+        <TSLLocation>https://example.test/member-state.xml</TSLLocation>
+        <AdditionalInformation>
+          <OtherInformation><TSLType>http://uri.etsi.org/TrstSvc/TrustedList/TSLType/EUgeneric</TSLType></OtherInformation>
+          <OtherInformation><SchemeOperatorName><Name xml:lang="en">Example Member State</Name></SchemeOperatorName></OtherInformation>
+          <OtherInformation><SchemeTerritory>IT</SchemeTerritory></OtherInformation>
+          <OtherInformation><at:MimeType>application/vnd.etsi.tsl+xml</at:MimeType></OtherInformation>
+        </AdditionalInformation>
+      </OtherTSLPointer>
+    </PointersToOtherTSL>
+    <ListIssueDateTime>2026-08-01T00:00:00Z</ListIssueDateTime>
+    <NextUpdate><dateTime>2026-12-01T00:00:00Z</dateTime></NextUpdate>
+    <DistributionPoints><URI>https://example.test/this-lotl.xml</URI></DistributionPoints>
+  </SchemeInformation>
+</TrustServiceStatusList>
