@@ -63,7 +63,7 @@ paths:
               schema: { type: string }
   /api/v1/audit/url:
     post:
-      summary: Audit a LoTL JSON loaded from URL
+      summary: Audit a JSON or ETSI TS 119 612 XML LoTL loaded from URL
       requestBody:
         required: true
         content:
@@ -88,6 +88,14 @@ paths:
                     strict: false
                     includeJsonLoteChecks: true
                     fetch: true
+              euXml:
+                value:
+                  url: https://ec.europa.eu/tools/lotl/eu-lotl.xml
+                  options:
+                    concurrency: 4
+                    timeoutMs: 15000
+                    strict: false
+                    fetch: false
       responses:
         '200':
           description: Audit completed. Individual fetch failures are represented inside the report.
@@ -146,7 +154,7 @@ paths:
         '500': { $ref: '#/components/responses/InternalError' }
   /api/v1/lotl/parse:
     post:
-      summary: Parse and summarize a LoTL without fetching pointers
+      summary: Parse and summarize a JSON or ETSI TS 119 612 XML LoTL without fetching pointers
       requestBody:
         required: true
         content:
@@ -318,7 +326,7 @@ paths:
         '500': { $ref: '#/components/responses/InternalError' }
   /api/audit/lotl:
     post:
-      summary: Audit a LoTL from a URL, JSON object, or raw file content
+      summary: Audit a JSON or ETSI TS 119 612 XML LoTL from a URL, JSON object, or raw content
       requestBody:
         required: true
         content:
@@ -472,7 +480,7 @@ components:
             - type: object
               additionalProperties: true
             - type: string
-        content: { type: string }
+        content: { type: string, description: Raw JSON or ETSI TS 119 612 XML LoTL content. }
         options: { $ref: '#/components/schemas/AuditOptions' }
         context: { $ref: '#/components/schemas/Ts119602ContextOptions' }
         rpacChain:
@@ -712,7 +720,7 @@ components:
           properties:
             code:
               type: string
-              enum: [invalid_request, invalid_lotl_json, invalid_url, assessment_failed, internal_error]
+              enum: [invalid_request, invalid_lotl, invalid_lotl_json, invalid_lotl_xml, invalid_url, assessment_failed, internal_error]
             message: { type: string }
             details: true
     AuditResponse:
@@ -740,7 +748,7 @@ components:
           required: [source, kind]
           properties:
             source: { type: string }
-            kind: { type: string, enum: [file, url, json] }
+            kind: { type: string, enum: [file, url, json, xml] }
             sha256: { type: string }
         lotl:
           $ref: '#/components/schemas/LoTLSummary'

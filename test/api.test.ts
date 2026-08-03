@@ -706,6 +706,16 @@ describe("API server", () => {
         .pointerSigners.items.$ref,
     ).toBe("#/components/schemas/TrustListPointerSignerEvidence");
     expect(
+      parsedJson.components.schemas.AuditReport.properties.input.properties.kind.enum,
+    ).toContain("xml");
+    expect(
+      parsedJson.components.schemas.ApiErrorResponse.properties.error.properties.code.enum,
+    ).toEqual(expect.arrayContaining(["invalid_lotl", "invalid_lotl_json", "invalid_lotl_xml"]));
+    expect(parsedJson.paths["/api/audit/lotl"].post.summary).toContain("XML");
+    expect(
+      parsedJson.paths["/api/v1/audit/url"].post.requestBody.content["application/json"].examples.euXml.value.url,
+    ).toBe("https://ec.europa.eu/tools/lotl/eu-lotl.xml");
+    expect(
       parsedJson.components.schemas.Ts119602ContextOptions.properties.ts119602
         .$ref,
     ).toBe("#/components/schemas/Ts119602ContextualEvidence");
@@ -845,6 +855,9 @@ describe("API server", () => {
     expect(page.statusCode).toBe(200);
     expect(page.headers["content-type"]).toContain("text/html");
     expect(page.body).toContain('id="lotl-url"');
+    expect(page.body).toContain("ETSI TS 119 612 XML LoTL");
+    expect(page.body).toContain("Upload LoTL XML or JSON file");
+    expect(page.body).toContain('accept="application/xml,text/xml,application/json,.xml,.json"');
     expect(page.body).toContain("Advanced options");
     expect(page.body).toContain("/assets/audit-ui.js");
     expect(page.body).toContain('rel="icon" href="/favicon.svg"');
@@ -862,6 +875,7 @@ describe("API server", () => {
     expect(css.body).toContain(".hero-band");
     expect(script.headers["content-type"]).toContain("application/javascript");
     expect(script.body).toContain("/api/audit/lotl");
+    expect(script.body).toContain("choose an XML or JSON file");
     expect(script.body).toContain("/api/audit/artifact");
     expect(script.body).toContain("Fixture readiness");
     expect(script.body).toContain("FCAF trusted authorities");

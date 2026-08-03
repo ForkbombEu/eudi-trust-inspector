@@ -1,7 +1,7 @@
 {
   "name": "we-build-tl-audit",
   "version": "0.1.0",
-  "description": "Audit Trusted Lists referenced by a WE BUILD WP4 LoTL JSON file.",
+  "description": "Audit Trusted Lists referenced by JSON or ETSI TS 119 612 XML LoTL inputs.",
   "type": "module",
   "bin": {
     "we-build-tl-audit": "dist/cli.js"

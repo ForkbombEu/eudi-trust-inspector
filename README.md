@@ -2,7 +2,7 @@
 
 ## Intro
 
-EUDI Trust Inspector is a deterministic CLI, API, and browser UI for assessing EUDI and WE BUILD trusted-list inputs. It helps operators distinguish parsed facts, implemented technical checks, evidence limits, and unsupported claims without presenting itself as a legal conformance authority.
+EUDI Trust Inspector is a deterministic CLI, API, and browser UI for assessing EUDI and WE BUILD trusted-list inputs, including JSON and ETSI TS 119 612 XML Lists of Trusted Lists. It helps operators distinguish parsed facts, implemented technical checks, evidence limits, and unsupported claims without presenting itself as a legal conformance authority.
 
 ## Technical specs
 
@@ -25,7 +25,7 @@ The homepage introduces the assessment in a compact hero followed by the audit f
 
 ### LoTL
 
-Provide a LoTL URL or upload JSON. ETSI TS 119 612 XML LoTL input is also supported by the CLI and shared assessment core; the browser file picker currently remains JSON-only. XML child-list locations are read only from `PointersToOtherTSL/OtherTSLPointer/TSLLocation`; `DistributionPoints` describe publication locations for the current list and are not traversed as child lists. The result groups findings by fetched TrustedList and separates pass, warning, failure, and not-final states.
+Provide a JSON or ETSI TS 119 612 XML LoTL URL, or upload a local XML or JSON file. XML child-list locations are read only from `PointersToOtherTSL/OtherTSLPointer/TSLLocation`; `DistributionPoints` describe publication locations for the current list and are not traversed as child lists. The result groups findings by fetched TrustedList and separates pass, warning, failure, and not-final states.
 
 ### TrustedList XML/JSON
 
