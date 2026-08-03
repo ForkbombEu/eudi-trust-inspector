@@ -5,7 +5,8 @@ import { detectArtifact } from "./detect.js";
 import { fetchArtifact, saveFetchedArtifact } from "./fetcher.js";
 import { isUrl, loadInput } from "./input.js";
 import { assessJsonLote } from "./json/loteChecks.js";
-import { parseLotlJson } from "./lotl.js";
+import { parseLotl, parseLotlJson } from "./lotl.js";
+import type { LotlFormat } from "./lotl.js";
 import { assessWeBuildProfile } from "./profiles/weBuild.js";
 import { assessTs119612ReferenceProfiles, emptyReferenceProfiles } from "./profiles/ts119612ReferenceProfiles.js";
 import { assessFixtureReadiness } from "./eudi/fixtureReadiness.js";
@@ -37,7 +38,7 @@ export interface AuditCoreOptions {
 
 export interface InMemoryAuditOptions extends AuditCoreOptions {
   source: string;
-  kind: "file" | "url" | "json";
+  kind: "file" | "url" | LotlFormat;
   lotlText: string;
   sha256?: string;
 }
@@ -112,7 +113,7 @@ export async function runAudit(options: CliOptions, version: string): Promise<Au
 }
 
 export async function runAuditInMemory(options: InMemoryAuditOptions, version: string): Promise<AuditInMemoryResult> {
-  const parsedLotl = parseLotlJson(options.lotlText);
+  const parsedLotl = parseLotl(options.lotlText);
   const generatedAt = new Date().toISOString();
 
   const results = await mapConcurrent(parsedLotl.pointers, options.concurrency, (pointer) => auditPointer(pointer, options));
@@ -198,6 +199,7 @@ export async function runAuditFromUrl(url: string, options: AuditCoreOptions, ve
 
 export async function runAuditFromJson(lotl: unknown, options: AuditCoreOptions, version: string): Promise<AuditInMemoryResult> {
   const lotlText = typeof lotl === "string" ? lotl : JSON.stringify(lotl);
+  parseLotlJson(lotlText);
   return runAuditInMemory(
     {
       ...options,
@@ -205,6 +207,20 @@ export async function runAuditFromJson(lotl: unknown, options: AuditCoreOptions,
       kind: "json",
       lotlText,
       sha256: sha256Hex(Buffer.from(lotlText, "utf8")),
+    },
+    version,
+  );
+}
+
+export async function runAuditFromContent(content: string, options: AuditCoreOptions, version: string): Promise<AuditInMemoryResult> {
+  const parsedLotl = parseLotl(content);
+  return runAuditInMemory(
+    {
+      ...options,
+      source: "request-body",
+      kind: parsedLotl.format,
+      lotlText: content,
+      sha256: sha256Hex(Buffer.from(content, "utf8")),
     },
     version,
   );

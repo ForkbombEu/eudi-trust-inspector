@@ -25,7 +25,7 @@ The homepage introduces the assessment in a compact hero followed by the audit f
 
 ### LoTL
 
-Provide a LoTL URL or upload its JSON. The result groups findings by fetched TrustedList and separates pass, warning, failure, and not-final states. Long findings lists expand the page, while JSON and Markdown output remain bounded scrollable panels.
+Provide a LoTL URL or upload JSON. ETSI TS 119 612 XML LoTL input is also supported by the CLI and shared assessment core; the browser file picker currently remains JSON-only. XML child-list locations are read only from `PointersToOtherTSL/OtherTSLPointer/TSLLocation`; `DistributionPoints` describe publication locations for the current list and are not traversed as child lists. The result groups findings by fetched TrustedList and separates pass, warning, failure, and not-final states.
 
 ### TrustedList XML/JSON
 
@@ -36,6 +36,7 @@ Provide a TrustedList URL, upload XML/JSON/JWS, or paste content. The UI renders
 | Function                     | Example                                                                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Audit local LoTL             | `node dist/cli.js --input ./list_of_trusted_lists.json --out-dir ./audit-output --concurrency 4 --timeout-ms 15000`                 |
+| Audit ETSI XML LoTL          | `node dist/cli.js --input ./eu-lotl.xml --out-dir ./audit-output --concurrency 4 --timeout-ms 15000`                                |
 | Audit a URL                  | `node dist/cli.js --input https://webuild-consortium.github.io/wp4-trust-group/list_of_trusted_lists.json --out-dir ./audit-output` |
 | Use a named reference source | `node dist/cli.js --reference-source we-build-lotl-json --out-dir ./audit-output`                                                   |
 

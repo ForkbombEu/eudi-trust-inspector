@@ -9,9 +9,9 @@ const pkg = require("../package.json") as { version: string };
 
 const program = new Command()
   .name("we-build-tl-audit")
-  .description("Audit trusted lists referenced by a WE BUILD WP4 LoTL JSON file.")
+  .description("Audit trusted lists referenced by a JSON or ETSI TS 119 612 XML LoTL.")
   .version(pkg.version)
-  .option("--input <path-or-url>", "Local path or URL to LoTL JSON.")
+  .option("--input <path-or-url>", "Local path or URL to a JSON or XML LoTL.")
   .option("--reference-source <id>", `Named reference source (${referenceSourceIds().join(", ")}).`)
   .option("--out-dir <dir>", "Output directory.", "./tl-audit-output")
   .option("--concurrency <n>", "Concurrent referenced artifact fetches.", parsePositiveInteger, 4)

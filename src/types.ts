@@ -243,7 +243,7 @@ export interface AuditReport {
   generatedAt: string;
   input: {
     source: string;
-    kind: "file" | "url" | "json";
+    kind: "file" | "url" | "json" | "xml";
     sha256?: string;
   };
   lotl: {
