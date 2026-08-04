@@ -11,6 +11,9 @@ export function renderAuditUiHtml(): string {
     <link rel="stylesheet" href="/assets/audit-ui.css" />
   </head>
   <body>
+    <div class="credimi-extras-bar">
+      <div class="credimi-extras-bar-inner"><img class="credimi-extras-mark" src="/assets/credimi_logo.svg" alt="" aria-hidden="true" width="16" height="16" /> This app is part of <strong>Credimi Extras</strong>. Automate all your EUDI testing with <a href="https://credimi.io" target="_blank" rel="noopener">Credimi</a></div>
+    </div>
     <header class="topbar">
       <div class="topbar-inner">
         <a class="brand-lockup" href="/">
@@ -55,6 +58,9 @@ export function renderAuditUiHtml(): string {
             <a class="footer-link fork-link" href="https://github.com/ForkbombEu/eudi-trust-inspector" target="_blank" rel="noreferrer">Repository</a>
           </nav>
         </div>
+      </div>
+      <div class="credimi-extras-bar-footer">
+        <div class="credimi-extras-bar-inner">This app is part of <strong>Credimi Extras</strong>. Automate all your EUDI testing with <a class="credimi-extras-wordmark-link" href="https://credimi.io" target="_blank" rel="noopener"><img class="credimi-extras-wordmark" src="/assets/credimi_logo-transp_white.svg" alt="Credimi" /></a></div>
       </div>
     </footer>
     <script>console.log("%cEUDI Trust Inspector%c Credimi audit UI", "background:#312060;color:#fff;padding:5px 9px;font-weight:800;border-radius:6px 0 0 6px;", "background:#f1e9f7;color:#22172f;padding:5px 9px;font-weight:700;border-radius:0 6px 6px 0;");</script>

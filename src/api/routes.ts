@@ -132,6 +132,22 @@ export async function registerRoutes(
     );
   });
 
+  app.get("/assets/credimi_logo-transp.svg", async (_request, reply) => {
+    reply.type("image/svg+xml");
+    return readFile(
+      new URL("./assets/credimi_logo-transp.svg", import.meta.url),
+      "utf8",
+    );
+  });
+
+  app.get("/assets/credimi_logo-transp_white.svg", async (_request, reply) => {
+    reply.type("image/svg+xml");
+    return readFile(
+      new URL("./assets/credimi_logo-transp_white.svg", import.meta.url),
+      "utf8",
+    );
+  });
+
   app.get("/favicon.svg", async (_request, reply) => {
     reply.type("image/svg+xml");
     return readFile(

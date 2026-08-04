@@ -617,3 +617,86 @@ textarea:focus {
     display: none;
   }
 }
+
+/*
+  --- Credimi Extras cross-promotional bars ---
+
+  One strip above the topbar and one closing the footer, both linking to
+  credimi.io. The same pair of bars appears in every Credimi Extras
+  application, so the rules here are deliberately self-contained and depend
+  only on the shared brand tokens.
+
+  Both logos are inline images inside the sentence rather than flex siblings of
+  it, so at a phone width the line breaks between words and the marks stay
+  attached to the text they belong to instead of dropping onto a line of their
+  own.
+*/
+.credimi-extras-bar {
+  background: var(--brand-secondary);
+  color: var(--brand-primary);
+  padding: 7px 24px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.credimi-extras-bar-footer {
+  /* Darkens the footer's own brand fill rather than introducing a new colour. */
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 9px 24px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/*
+  The bar has to reach the bottom edge of the page, so the footer's own closing
+  padding moves onto the bar's top margin: the space above the strip is
+  unchanged and nothing shows below it.
+*/
+.footer {
+  padding-bottom: 0;
+}
+
+.credimi-extras-bar-footer {
+  margin-top: 64px;
+}
+
+.credimi-extras-bar-inner {
+  max-width: var(--audit-max-width);
+  margin: 0 auto;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.credimi-extras-mark {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+  object-fit: contain;
+  vertical-align: -3px;
+}
+
+/* Only the linked word is clickable — the bar itself is not a target. */
+.credimi-extras-bar a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.credimi-extras-wordmark-link {
+  text-decoration: none;
+}
+
+.credimi-extras-wordmark {
+  display: inline-block;
+  height: 16px;
+  width: auto;
+  vertical-align: -4px;
+}
+
+.credimi-extras-bar a:focus-visible,
+.credimi-extras-wordmark-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
